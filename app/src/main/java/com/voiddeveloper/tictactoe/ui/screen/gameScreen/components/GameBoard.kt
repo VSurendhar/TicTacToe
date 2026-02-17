@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,18 +18,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-private fun GameBoard(
-    onCellClick: () -> Unit
+fun GameBoard(
+    onCellClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         repeat(3) {
             Row(
-                modifier = Modifier.weight(1f),
+                modifier = modifier.weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 repeat(3) {
@@ -40,7 +42,7 @@ private fun GameBoard(
 }
 
 @Composable
-private fun GameCell(onClick: () -> Unit) {
+private fun RowScope.GameCell(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .weight(1f)

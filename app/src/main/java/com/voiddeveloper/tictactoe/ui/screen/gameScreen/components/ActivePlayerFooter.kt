@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
-private fun ActivePlayerFooter(activePlayer: Int) {
+fun ActivePlayerFooter(activePlayer: Int) {
     Text(
         text = "Player $activePlayer's turn",
         modifier = Modifier.fillMaxWidth(),

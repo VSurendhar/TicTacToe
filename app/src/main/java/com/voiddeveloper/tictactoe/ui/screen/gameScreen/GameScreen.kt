@@ -12,13 +12,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.model.GameMode
+import com.voiddeveloper.tictactoe.model.GameStrategy
+import com.voiddeveloper.tictactoe.model.PlayerToAI
+import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameToolbar
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.PlayerIndicator
+import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 
 @Composable
 fun GameScreen(
     onExit: () -> Unit,
-    gameMode: GameMode = GameMode.SinglePlayer
 ) {
     var showDifficultyDialog by remember { mutableStateOf(false) }
     var activePlayer by remember { mutableStateOf(1) } // 1 or 2
@@ -37,41 +43,38 @@ fun GameScreen(
 
             // 1️⃣ Toolbar
             GameToolbar(
-                gameMode = gameMode,
+                gameStrategy = PlayerToAI::class.java,
                 onDifficultyClick = {
-                    if (gameMode is GameMode.SinglePlayer) {
-                        showDifficultyDialog = true
-                    }
+                    showDifficultyDialog = true
                 },
                 onReplayClick = {
                     // reset game later
                 },
-                onPauseClick = {
-                    // pause later
-                }
             )
 
-            // 2️⃣ Player indicator (top)
             PlayerIndicator(activePlayer = activePlayer)
 
-            // 3️⃣ 3x3 Grid
             GameBoard(
-                onCellClick = {
+                modifier = Modifier.fillMaxSize(), onCellClick = {
                     activePlayer = if (activePlayer == 1) 2 else 1
-                }
-            )
+                })
 
-            // 4️⃣ Active player footer
-            ActivePlayerFooter(activePlayer = activePlayer)
         }
     }
 
     if (showDifficultyDialog) {
-        DifficultyDialog(
-            onSelected = {
-                showDifficultyDialog = false
-            },
-            onDismiss = { showDifficultyDialog = false }
+        DifficultyDialog(onSelected = {
+            showDifficultyDialog = false
+        }, onDismiss = { showDifficultyDialog = false })
+    }
+}
+
+@Preview
+@Composable
+fun PreviewGameScreen() {
+    TicTacToeTheme {
+        GameScreen(
+            onExit = {}
         )
     }
 }

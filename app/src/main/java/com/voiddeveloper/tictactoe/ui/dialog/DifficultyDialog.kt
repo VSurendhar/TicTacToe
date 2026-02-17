@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
 @Composable
-private fun DifficultyDialog(
+fun DifficultyDialog(
     onSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
