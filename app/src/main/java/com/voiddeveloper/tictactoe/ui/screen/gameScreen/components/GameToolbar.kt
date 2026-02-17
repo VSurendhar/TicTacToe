@@ -10,16 +10,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.voiddeveloper.tictactoe.model.GameStrategy
-import com.voiddeveloper.tictactoe.model.PlayerToAI
+import com.voiddeveloper.tictactoe.domain.controllers.GameController
+import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
+import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerController
 
 @Composable
 fun GameToolbar(
-    gameStrategy: Class<out GameStrategy>,
+    gameStrategy: Class<out GameController>,
     onReplayClick: () -> Unit,
     onDifficultyClick: () -> Unit,
 ) {
@@ -29,7 +29,7 @@ fun GameToolbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        if (gameStrategy == PlayerToAI::class.java) {
+        if (gameStrategy == SinglePlayerController::class.java) {
             TextButton(onClick = onDifficultyClick) {
                 Text("Difficulty")
             }
@@ -46,7 +46,7 @@ fun GameToolbar(
 @Composable
 fun PreviewGameToolbar() {
     GameToolbar(
-        gameStrategy = PlayerToAI::class.java,
+        gameStrategy = SimpleMultiplayerGameController::class.java,
         onReplayClick = {},
         onDifficultyClick = {}
     )

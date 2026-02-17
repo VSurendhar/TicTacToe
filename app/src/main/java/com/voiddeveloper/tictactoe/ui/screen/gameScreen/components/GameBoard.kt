@@ -15,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -47,6 +48,7 @@ private fun RowScope.GameCell(onClick: () -> Unit) {
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         tonalElevation = 2.dp,

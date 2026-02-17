@@ -1,0 +1,3 @@
+package com.voiddeveloper.tictactoe.domain.controllers
+
+interface SinglePlayerController

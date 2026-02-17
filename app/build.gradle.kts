@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.parcelize")
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -68,5 +69,6 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.5.6")
 
     implementation("androidx.compose.material:material-icons-extended:1.7.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
 }

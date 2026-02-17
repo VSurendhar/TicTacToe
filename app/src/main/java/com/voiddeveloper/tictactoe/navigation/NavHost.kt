@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.voiddeveloper.tictactoe.model.PlayerToAI
 import com.voiddeveloper.tictactoe.ui.screen.ModeSelectionScreen
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.GameScreen
 

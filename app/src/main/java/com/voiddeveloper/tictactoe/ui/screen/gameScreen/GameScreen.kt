@@ -14,8 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.model.GameStrategy
-import com.voiddeveloper.tictactoe.model.PlayerToAI
+import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
 import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameToolbar
@@ -41,9 +40,8 @@ fun GameScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // 1️⃣ Toolbar
             GameToolbar(
-                gameStrategy = PlayerToAI::class.java,
+                gameStrategy = SimpleMultiplayerGameController::class.java,
                 onDifficultyClick = {
                     showDifficultyDialog = true
                 },
