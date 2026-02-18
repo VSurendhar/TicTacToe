@@ -13,13 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.voiddeveloper.tictactoe.domain.controllers.GameController
-import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
-import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerController
 
 @Composable
 fun GameToolbar(
-    gameStrategy: Class<out GameController>,
+    showDifficulty: Boolean,
     onReplayClick: () -> Unit,
     onDifficultyClick: () -> Unit,
 ) {
@@ -29,7 +26,7 @@ fun GameToolbar(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        if (gameStrategy == SinglePlayerController::class.java) {
+        if (showDifficulty) {
             TextButton(onClick = onDifficultyClick) {
                 Text("Difficulty")
             }
@@ -46,7 +43,7 @@ fun GameToolbar(
 @Composable
 fun PreviewGameToolbar() {
     GameToolbar(
-        gameStrategy = SimpleMultiplayerGameController::class.java,
+        showDifficulty = false,
         onReplayClick = {},
         onDifficultyClick = {}
     )

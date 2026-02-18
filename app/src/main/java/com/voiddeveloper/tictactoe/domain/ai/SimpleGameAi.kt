@@ -9,7 +9,6 @@ import kotlinx.serialization.Transient
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-@Serializable
 class SimpleGameAi(
     override var gameCells: List<List<Cell>>,
     var difficulty: GamePlayDifficulty,

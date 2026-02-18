@@ -8,9 +8,7 @@ import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.Serializable
 
-@Serializable
 class SimpleMultiplayerGameController(
     val playerDetails: PlayerDetails,
 ) : GameController {

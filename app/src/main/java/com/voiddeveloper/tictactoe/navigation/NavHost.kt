@@ -7,31 +7,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.voiddeveloper.tictactoe.ui.screen.ModeSelectionScreen
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.GameScreen
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
 ) {
     NavHost(
-        navController = navController, startDestination = Routes.ModeSelection.route
+        navController = navController, startDestination = MainScreen
     ) {
 
-        composable(Routes.ModeSelection.route) {
-            ModeSelectionScreen(onPlayerVsPlayerSelected = {
-                navController.navigate(Routes.GameBoard.route)
-            }, onPlayerVsComputerSelected = {
-                navController.navigate(Routes.GameBoard.route)
+        composable<MainScreen> {
+            ModeSelectionScreen(navigateToGameScreen = { gameDetails ->
+                val json = Json.encodeToString(gameDetails)
+                navController.navigate(GameScreeRoute(json))
             })
         }
 
-        composable(Routes.GameBoard.route) {
-            GameScreen(
-                onExit = {
-                    navController.popBackStack(
-                        Routes.ModeSelection.route, inclusive = false
-                    )
-                }
-            )
+        composable<GameScreeRoute> {
+            GameScreen()
         }
 
     }

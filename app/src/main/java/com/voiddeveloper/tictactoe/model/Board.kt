@@ -4,7 +4,6 @@ import com.voiddeveloper.tictactoe.domain.Utils
 import com.voiddeveloper.tictactoe.domain.snapShot
 import kotlinx.serialization.Serializable
 
-@Serializable
 class Board {
 
     private val board: List<MutableList<Cell>> = List(Utils.GAME_BOARD_SIZE) { rowIdx ->

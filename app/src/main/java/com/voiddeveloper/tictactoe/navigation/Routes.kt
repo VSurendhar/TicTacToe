@@ -1,14 +1,12 @@
 package com.voiddeveloper.tictactoe.navigation
 
+import kotlinx.serialization.Serializable
 
-sealed interface Routes {
-    val route: String
 
-    data object ModeSelection : Routes {
-        override val route = "mode_selection"
-    }
+@Serializable
+data object MainScreen
 
-    data object GameBoard : Routes {
-        override val route = "game_board"
-    }
-}
+@Serializable
+data class GameScreeRoute(
+    val gameScreenDetailsJson: String
+)

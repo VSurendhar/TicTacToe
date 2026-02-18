@@ -5,34 +5,35 @@ import com.voiddeveloper.tictactoe.domain.controllers.RemoteSinglePlayerGameCont
 import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
 import com.voiddeveloper.tictactoe.domain.controllers.SimpleSinglePlayerController
 import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.GameDetails
+import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.GamePlayStrategy
+import com.voiddeveloper.tictactoe.model.GameScreenDetails
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.SinglePlayerMode
 
 interface GameControllerFactory {
-    fun create(gameDetails: GameDetails): GameController
+    fun create(gameScreenDetails: GameScreenDetails): GameController
 }
 
 class DefaultGameControllerFactory(
     private val aiFactory: GameAiFactory,
 ) : GameControllerFactory {
 
-    override fun create(gameDetails: GameDetails): GameController {
+    override fun create(gameScreenDetails: GameScreenDetails): GameController {
 
-        return when (val strategy = gameDetails.gamePlayStrategy) {
+        return when (val strategy = gameScreenDetails.gamePlayStrategy) {
 
             is GamePlayStrategy.SinglePlayer -> {
                 createSinglePlayerController(
                     strategy = strategy,
-                    playerDetails = gameDetails.playerDetails,
+                    playerDetails = gameScreenDetails.playerDetails,
                     aiFactory = aiFactory
                 )
             }
 
-            else -> {
+            is GamePlayStrategy.MultiPlayer -> {
                 SimpleMultiplayerGameController(
-                    playerDetails = gameDetails.playerDetails
+                    playerDetails = gameScreenDetails.playerDetails
                 )
             }
         }
@@ -51,7 +52,7 @@ class DefaultGameControllerFactory(
                 val singlePlayerMode = strategy.singlePlayerMode
 
                 val gameAI = aiFactory.create(
-                    controller = singlePlayerMode.singlePlayerController,
+                    gameAI = singlePlayerMode.gameAi,
                     difficulty = difficulty,
                     board = Board()
                 )

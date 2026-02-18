@@ -3,24 +3,25 @@ package com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.voiddeveloper.tictactoe.domain.controllers.AutoStartableController
 import com.voiddeveloper.tictactoe.domain.controllers.GameController
-import com.voiddeveloper.tictactoe.domain.factory.DefaultGameControllerFactory
-import com.voiddeveloper.tictactoe.model.AutoStartableController
+import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerController
+import com.voiddeveloper.tictactoe.domain.factory.GameControllerFactory
 import com.voiddeveloper.tictactoe.model.Board
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.GameDetails
+import com.voiddeveloper.tictactoe.model.GameScreenDetails
 import com.voiddeveloper.tictactoe.model.GameStatus
-import com.voiddeveloper.tictactoe.model.MultiPlayerGameDetails
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 class GameViewModel(
-    gameControllerFactory: DefaultGameControllerFactory,
+    gameControllerFactory: GameControllerFactory,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -32,12 +33,16 @@ class GameViewModel(
 
     init {
 
-        val gameDetails: GameDetails =
-            savedStateHandle.get<GameDetails>("gameDetails") ?: MultiPlayerGameDetails
+        val gameScreenDetailsStr: String =
+            savedStateHandle.get<String>("gameScreenDetailsJson") ?: throw IllegalArgumentException(
+                "gameScreenDetailsJson is null"
+            )
 
-        controller = gameControllerFactory.create(gameDetails)
+        val gameScreenDetails =
+            Json.decodeFromString(GameScreenDetails.serializer(), gameScreenDetailsStr)
 
-        playerDetails = gameDetails.playerDetails
+        controller = gameControllerFactory.create(gameScreenDetails)
+        playerDetails = gameScreenDetails.playerDetails
         playerDetails.toggleRandomly()
 
         _uiState = MutableStateFlow(
@@ -45,7 +50,8 @@ class GameViewModel(
                 board = controller.getGameBoard(),
                 players = playerDetails.players,
                 currentPlayer = controller.getCurrentPlayer(),
-                status = GameStatus.InProgress
+                status = GameStatus.InProgress,
+                showDifficulty = SinglePlayerController::class.java.isInstance(controller)
             )
         )
 
@@ -67,16 +73,15 @@ class GameViewModel(
 
     fun onMove(coordinate: Coordinate) {
         viewModelScope.launch {
-            controller.addMove(coordinate)
-                .collect { status ->
-                    _uiState.update {
-                        it.copy(
-                            board = controller.getGameBoard(),
-                            currentPlayer = controller.getCurrentPlayer(),
-                            status = status
-                        )
-                    }
+            controller.addMove(coordinate).collect { status ->
+                _uiState.update {
+                    it.copy(
+                        board = controller.getGameBoard(),
+                        currentPlayer = controller.getCurrentPlayer(),
+                        status = status
+                    )
                 }
+            }
         }
     }
 
@@ -87,4 +92,5 @@ data class GameUiState(
     val players: List<Player> = emptyList(),
     val currentPlayer: Player? = null,
     val status: GameStatus = GameStatus.InProgress,
+    val showDifficulty: Boolean = false,
 )

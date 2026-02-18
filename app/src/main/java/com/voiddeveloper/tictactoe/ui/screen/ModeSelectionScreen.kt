@@ -22,15 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.ui.dialog.PlayerVsPlayerDialog
+import com.voiddeveloper.tictactoe.model.GamePlayStrategy
+import com.voiddeveloper.tictactoe.model.GameScreenDetails
+import com.voiddeveloper.tictactoe.model.SinglePlayerMode
+import com.voiddeveloper.tictactoe.ui.dialog.LocalGameModeDialog
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 
 @Composable
 fun ModeSelectionScreen(
-    onPlayerVsPlayerSelected: () -> Unit,
-    onPlayerVsComputerSelected: () -> Unit,
+    navigateToGameScreen: (GameScreenDetails) -> Unit,
 ) {
-    var showPvPDialog by remember { mutableStateOf(false) }
+
+    var showLocalDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -54,33 +57,35 @@ fun ModeSelectionScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { showPvPDialog = true }
+                onClick = { showLocalDialog = true }
             ) {
-                Text("Player vs Player")
+                Text("Local")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = onPlayerVsComputerSelected
+                onClick = {
+                    navigateToGameScreen(
+                        GameScreenDetails(
+                            gamePlayStrategy = GamePlayStrategy.SinglePlayer(SinglePlayerMode.Remote)
+                        )
+                    )
+                }
             ) {
-                Text("Player vs Computer")
+                Text("Remote")
             }
         }
     }
 
-    if (showPvPDialog) {
-        PlayerVsPlayerDialog(
-            onLocalSelected = {
-                showPvPDialog = false
-                onPlayerVsPlayerSelected()
+    if (showLocalDialog) {
+        LocalGameModeDialog(
+            navigateToGameScreen = { gameScreenDetails ->
+                showLocalDialog = false
+                navigateToGameScreen(gameScreenDetails)
             },
-            onRemoteSelected = {
-                showPvPDialog = false
-                onPlayerVsPlayerSelected()
-            },
-            onDismiss = { showPvPDialog = false }
+            onDismiss = { showLocalDialog = false }
         )
     }
 }
@@ -89,6 +94,6 @@ fun ModeSelectionScreen(
 @Preview(showBackground = true, uiMode = UiModeManager.MODE_NIGHT_YES)
 fun ModeSelectionScreenPreview() {
     TicTacToeTheme {
-        ModeSelectionScreen({}, {})
+        ModeSelectionScreen {}
     }
 }

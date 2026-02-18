@@ -1,7 +1,7 @@
 package com.voiddeveloper.tictactoe.domain.controllers
 
 import com.voiddeveloper.tictactoe.domain.ai.GameAI
-import com.voiddeveloper.tictactoe.model.AutoStartableController
+import com.voiddeveloper.tictactoe.domain.controllers.AutoStartableController
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GameStatus
@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable
 
-@Serializable
 class SimpleSinglePlayerController(
     private var gameAI: GameAI,
     val playerDetails: PlayerDetails,

@@ -7,27 +7,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
 import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameToolbar
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.PlayerIndicator
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.GameViewModel
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun GameScreen(
-    onExit: () -> Unit,
 ) {
     var showDifficultyDialog by remember { mutableStateOf(false) }
-    var activePlayer by remember { mutableStateOf(1) } // 1 or 2
-
+    var activePlayer by remember { mutableIntStateOf(1) } // 1 or 2
+    val viewModel: GameViewModel = koinViewModel()
+    val state by viewModel.uiState.collectAsState()
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
@@ -41,7 +44,7 @@ fun GameScreen(
         ) {
 
             GameToolbar(
-                gameStrategy = SimpleMultiplayerGameController::class.java,
+                showDifficulty = state.showDifficulty,
                 onDifficultyClick = {
                     showDifficultyDialog = true
                 },
@@ -71,8 +74,6 @@ fun GameScreen(
 @Composable
 fun PreviewGameScreen() {
     TicTacToeTheme {
-        GameScreen(
-            onExit = {}
-        )
+        GameScreen()
     }
 }

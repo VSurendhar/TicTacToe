@@ -13,4 +13,4 @@ enum class PlayerType {
 }
 
 @Serializable
-enum class Coin(char: Char) { X('X'), O('O') }
+enum class Coin(val char: Char) { X('X'), O('O') }

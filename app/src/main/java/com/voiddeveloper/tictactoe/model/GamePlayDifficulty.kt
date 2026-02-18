@@ -1,5 +1,9 @@
 package com.voiddeveloper.tictactoe.model
 
-enum class GamePlayDifficulty {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class GamePlayDifficulty : Parcelable {
     EASY, MEDIUM, HARD
 }

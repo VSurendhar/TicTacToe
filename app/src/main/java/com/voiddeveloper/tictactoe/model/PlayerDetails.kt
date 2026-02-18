@@ -26,4 +26,8 @@ open class PlayerDetails(
         return playerQueue.first()
     }
 
+    override fun toString(): String {
+        return "PlayerDetails(players=$players)"
+    }
+
 }
