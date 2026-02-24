@@ -2,11 +2,10 @@ package com.voiddeveloper.tictactoe.model
 
 import com.voiddeveloper.tictactoe.domain.Utils
 import com.voiddeveloper.tictactoe.domain.snapShot
-import kotlinx.serialization.Serializable
 
 class Board {
 
-    private val board: List<MutableList<Cell>> = List(Utils.GAME_BOARD_SIZE) { rowIdx ->
+    private var board: List<MutableList<Cell>> = List(Utils.GAME_BOARD_SIZE) { rowIdx ->
         MutableList(Utils.GAME_BOARD_SIZE) { colIdx ->
             Cell(
                 rowIdx, colIdx
@@ -14,6 +13,15 @@ class Board {
         }
     }
 
+    fun clearBoard(){
+        board = List(Utils.GAME_BOARD_SIZE) { rowIdx ->
+            MutableList(Utils.GAME_BOARD_SIZE) { colIdx ->
+                Cell(
+                    rowIdx, colIdx
+                )
+            }
+        }
+    }
 
     fun getWinningCells(player: Player): List<Cell> {
         board.forEach { row ->
@@ -65,8 +73,8 @@ class Board {
         }
     }
 
-    fun isCellFree(x: Int, y: Int): Boolean {
-        return board[x][y].player == null
+    fun isCellFree(row: Int, col: Int): Boolean {
+        return board[row][col].player == null
     }
 
     fun getBoard(): List<List<Cell>> {

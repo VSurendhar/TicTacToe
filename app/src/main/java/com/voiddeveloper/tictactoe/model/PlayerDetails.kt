@@ -2,29 +2,23 @@ package com.voiddeveloper.tictactoe.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 @Serializable
-open class PlayerDetails(
+data class PlayerDetails(
     val players: List<Player>,
-)  {
-    @Transient
-    private val playerQueue: ArrayDeque<Player> = ArrayDeque<Player>(players)
-
-    open fun toggleRandomly() {
-        repeat(Random.nextInt(1..2)) {
-            togglePlayer()
-        }
-    }
+    private var currentIndex: Int = 0,
+) {
 
     fun togglePlayer() {
-        playerQueue.addLast(playerQueue.removeFirst())
+        currentIndex = 1 - currentIndex
     }
 
-    fun getCurPlayer(): Player {
-        return playerQueue.first()
+    fun setStartingIndex(index: Int) {
+        currentIndex = index
     }
+
+    fun getCurPlayer() = players[currentIndex]
+
 
     override fun toString(): String {
         return "PlayerDetails(players=$players)"

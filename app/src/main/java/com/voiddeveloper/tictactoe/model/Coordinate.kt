@@ -1,3 +1,3 @@
 package com.voiddeveloper.tictactoe.model
 
-data class Coordinate(val x: Int, val y: Int)
+data class Coordinate(val row: Int, val col: Int)

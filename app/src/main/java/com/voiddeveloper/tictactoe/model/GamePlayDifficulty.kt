@@ -5,5 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 enum class GamePlayDifficulty : Parcelable {
-    EASY, MEDIUM, HARD
+    EASY, MEDIUM, HARD,DEFAULT
 }

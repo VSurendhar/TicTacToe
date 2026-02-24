@@ -9,13 +9,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.voiddeveloper.tictactoe.model.GameStatus
 import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameToolbar
@@ -25,12 +25,12 @@ import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun GameScreen(
-) {
+fun GameScreen() {
+
     var showDifficultyDialog by remember { mutableStateOf(false) }
-    var activePlayer by remember { mutableIntStateOf(1) } // 1 or 2
     val viewModel: GameViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
@@ -49,22 +49,33 @@ fun GameScreen(
                     showDifficultyDialog = true
                 },
                 onReplayClick = {
-                    // reset game later
+                    viewModel.onClearBoard()
                 },
             )
 
-            PlayerIndicator(activePlayer = activePlayer)
+            PlayerIndicator(
+                currentPlayer = state.currentPlayer,
+                playerList = state.players
+            )
 
             GameBoard(
-                modifier = Modifier.fillMaxSize(), onCellClick = {
-                    activePlayer = if (activePlayer == 1) 2 else 1
-                })
+                modifier = Modifier.fillMaxSize(),
+                onCellClick = { coordinate ->
+                    if (state.status is GameStatus.InProgress && state.board[coordinate.row][coordinate.col].player == null) {
+                        viewModel.onMove(coordinate)
+                    }
+                },
+                gameBoard = state.board,
+                isWin = state.status is GameStatus.Won,
+                winningCells = (state.status as? GameStatus.Won)?.winningCells
+            )
 
         }
     }
 
     if (showDifficultyDialog) {
-        DifficultyDialog(onSelected = {
+        DifficultyDialog(selectedGamePlayDifficulty = state.gamePlayDifficulty, onSelected = {
+            viewModel.onGamePlayDifficultyChange(it)
             showDifficultyDialog = false
         }, onDismiss = { showDifficultyDialog = false })
     }

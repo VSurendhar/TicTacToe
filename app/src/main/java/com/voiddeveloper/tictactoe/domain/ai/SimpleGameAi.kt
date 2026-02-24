@@ -4,14 +4,13 @@ import com.voiddeveloper.tictactoe.domain.SimpleGameBlankCell
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.PlayerType
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.random.Random
 import kotlin.random.nextInt
 
 class SimpleGameAi(
     override var gameCells: List<List<Cell>>,
-    var difficulty: GamePlayDifficulty,
+    override var difficulty: GamePlayDifficulty,
 ) : GameAI {
 
 
@@ -39,6 +38,7 @@ class SimpleGameAi(
             GamePlayDifficulty.EASY -> easyPlay()
             GamePlayDifficulty.MEDIUM -> mediumPlay()
             GamePlayDifficulty.HARD -> hardPlay()
+            else -> easyPlay()
         }
         if (cell.player != null) throw IllegalArgumentException("Cell already has a player!")
         else return cell

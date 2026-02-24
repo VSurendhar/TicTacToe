@@ -6,12 +6,18 @@ import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlin.random.Random
 
-class SimpleMultiplayerGameController(
+class MultiPlayerGame(
     val playerDetails: PlayerDetails,
 ) : GameController {
+
+    private val _gameStatus: MutableSharedFlow<GameStatus> =
+        MutableSharedFlow()
+    override val gameStatus: SharedFlow<GameStatus> = _gameStatus.asSharedFlow()
 
     private val board = Board()
 
@@ -25,24 +31,23 @@ class SimpleMultiplayerGameController(
         return playerDetails.getCurPlayer()
     }
 
-    override fun addMove(coordinate: Coordinate): Flow<GameStatus> {
+    override suspend fun addMove(coordinate: Coordinate) {
 
         if (gameOver) {
             println(getPrintableBoard())
             throw IllegalStateException("Game already finished")
         }
 
-
-        if (board.isInvalidCoordinate(coordinate.x, coordinate.y)) {
+        if (board.isInvalidCoordinate(coordinate.row, coordinate.col)) {
             throw RuntimeException("Invalid Coordinate")
         }
 
-        if (!isCellFree(coordinate.x, coordinate.y)) {
-            throw RuntimeException("(${coordinate.x},${coordinate.y}) Cell already occupied")
+        if (!isCellFree(coordinate.row, coordinate.col)) {
+            throw RuntimeException("(${coordinate.row},${coordinate.col}) Cell already occupied")
         }
 
         val curPlayer = getCurPlayer()
-        board.setPlayer(coordinate.x, coordinate.y, curPlayer)
+        board.setPlayer(coordinate.row, coordinate.col, curPlayer)
 
         val winPlayer = isWin(curPlayer)
         val isDraw = isDraw()
@@ -62,7 +67,7 @@ class SimpleMultiplayerGameController(
             }
         }
 
-        return flow { emit(newState) }
+        _gameStatus.emit(newState)
 
     }
 
@@ -78,8 +83,8 @@ class SimpleMultiplayerGameController(
         return board.isAllFilled()
     }
 
-    private fun isCellFree(x: Int, y: Int): Boolean {
-        return board.isCellFree(x, y)
+    private fun isCellFree(row: Int, col: Int): Boolean {
+        return board.isCellFree(row, col)
     }
 
     fun togglePlayer() {
@@ -94,6 +99,13 @@ class SimpleMultiplayerGameController(
 
     fun getPrintableBoard(): String {
         return board.toString()
+    }
+
+    override suspend fun clearBoard() {
+        board.clearBoard()
+        val randomIndex = if (Random.nextBoolean()) 0 else 1
+        playerDetails.setStartingIndex(randomIndex)
+        _gameStatus.emit(GameStatus.InProgress)
     }
 
 }

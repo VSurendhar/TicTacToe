@@ -40,9 +40,13 @@ fun LocalGameModeDialog(
                             playerDetails = PlayerDetails(
                                 players = listOf(
                                     Player(
-                                        type = PlayerType.COMPUTER, coin = Coin.X
+                                        type = PlayerType.COMPUTER,
+                                        coin = Coin.X,
+                                        playerName = "Computer"
                                     ), Player(
-                                        type = PlayerType.HUMAN, coin = Coin.O
+                                        type = PlayerType.HUMAN,
+                                        coin = Coin.O,
+                                        playerName = "Human 1"
                                     )
                                 )
                             ), gamePlayStrategy = GamePlayStrategy.SinglePlayer(
@@ -64,9 +68,13 @@ fun LocalGameModeDialog(
                             playerDetails = PlayerDetails(
                                 players = listOf(
                                     Player(
-                                        type = PlayerType.HUMAN, coin = Coin.X
+                                        type = PlayerType.HUMAN,
+                                        coin = Coin.X,
+                                        playerName = "Human 1"
                                     ), Player(
-                                        type = PlayerType.HUMAN, coin = Coin.O
+                                        type = PlayerType.HUMAN,
+                                        coin = Coin.O,
+                                        playerName = "Human 2"
                                     )
                                 )
                             ), gamePlayStrategy = GamePlayStrategy.MultiPlayer

@@ -7,19 +7,23 @@ import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerType
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 
-class RemoteSinglePlayerGameController : GameController {
+class SinglePlayerRemote : GameController {
+    override val gameStatus: StateFlow<GameStatus>
+        get() = flow { emit(GameStatus.InProgress) } as StateFlow
+
+
     override fun getGameBoard(): List<List<Cell>> {
         return Board.emptyBoard
     }
 
     override fun getCurrentPlayer(): Player {
-        return Player(PlayerType.COMPUTER, Coin.O)
+        return Player(PlayerType.COMPUTER, Coin.O, "dasohf")
     }
 
-    override fun addMove(coordinate: Coordinate): Flow<GameStatus> {
-        return flow { }
-    }
+    override suspend fun addMove(coordinate: Coordinate) {}
+
+    override suspend fun clearBoard() {}
 }

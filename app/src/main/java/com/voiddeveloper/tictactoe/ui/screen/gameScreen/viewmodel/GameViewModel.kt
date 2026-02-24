@@ -3,13 +3,13 @@ package com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.voiddeveloper.tictactoe.domain.controllers.AutoStartableController
 import com.voiddeveloper.tictactoe.domain.controllers.GameController
-import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerController
+import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
 import com.voiddeveloper.tictactoe.domain.factory.GameControllerFactory
 import com.voiddeveloper.tictactoe.model.Board
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
+import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.GameScreenDetails
 import com.voiddeveloper.tictactoe.model.GameStatus
 import com.voiddeveloper.tictactoe.model.Player
@@ -41,9 +41,8 @@ class GameViewModel(
         val gameScreenDetails =
             Json.decodeFromString(GameScreenDetails.serializer(), gameScreenDetailsStr)
 
-        controller = gameControllerFactory.create(gameScreenDetails)
+        controller = gameControllerFactory.create(gameScreenDetails, viewModelScope)
         playerDetails = gameScreenDetails.playerDetails
-        playerDetails.toggleRandomly()
 
         _uiState = MutableStateFlow(
             GameUiState(
@@ -51,20 +50,24 @@ class GameViewModel(
                 players = playerDetails.players,
                 currentPlayer = controller.getCurrentPlayer(),
                 status = GameStatus.InProgress,
-                showDifficulty = SinglePlayerController::class.java.isInstance(controller)
+                showDifficulty = controller is SinglePlayerLocal,
+                gamePlayDifficulty = if (controller is SinglePlayerLocal)
+                    controller.getGamePlayDifficulty()
+                else GamePlayDifficulty.DEFAULT
             )
         )
 
-        if (controller is AutoStartableController) {
-            viewModelScope.launch {
-                controller.startGame().collect {
-                    _uiState.update {
-                        it.copy(
-                            board = controller.getGameBoard(),
-                            currentPlayer = controller.getCurrentPlayer(),
-                            status = it.status
-                        )
-                    }
+        viewModelScope.launch {
+            controller.gameStatus.collect { status ->
+                _uiState.update {
+                    it.copy(
+                        board = controller.getGameBoard(),
+                        currentPlayer = controller.getCurrentPlayer(),
+                        status = status,
+                        gamePlayDifficulty = if (controller is SinglePlayerLocal)
+                            controller.getGamePlayDifficulty()
+                        else GamePlayDifficulty.DEFAULT
+                    )
                 }
             }
         }
@@ -73,15 +76,23 @@ class GameViewModel(
 
     fun onMove(coordinate: Coordinate) {
         viewModelScope.launch {
-            controller.addMove(coordinate).collect { status ->
-                _uiState.update {
-                    it.copy(
-                        board = controller.getGameBoard(),
-                        currentPlayer = controller.getCurrentPlayer(),
-                        status = status
-                    )
+            controller.addMove(coordinate)
+        }
+    }
+
+    fun onGamePlayDifficultyChange(gamePlayDifficulty: GamePlayDifficulty) {
+        viewModelScope.launch {
+            when (controller) {
+                is SinglePlayerLocal -> {
+                    controller.changeGamePlayDifficulty(gamePlayDifficulty)
                 }
             }
+        }
+    }
+
+    fun onClearBoard() {
+        viewModelScope.launch {
+            controller.clearBoard()
         }
     }
 
@@ -93,4 +104,5 @@ data class GameUiState(
     val currentPlayer: Player? = null,
     val status: GameStatus = GameStatus.InProgress,
     val showDifficulty: Boolean = false,
+    val gamePlayDifficulty: GamePlayDifficulty = GamePlayDifficulty.DEFAULT,
 )

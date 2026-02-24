@@ -1,25 +1,28 @@
 package com.voiddeveloper.tictactoe.domain.factory
 
 import com.voiddeveloper.tictactoe.domain.controllers.GameController
-import com.voiddeveloper.tictactoe.domain.controllers.RemoteSinglePlayerGameController
-import com.voiddeveloper.tictactoe.domain.controllers.SimpleMultiplayerGameController
-import com.voiddeveloper.tictactoe.domain.controllers.SimpleSinglePlayerController
+import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerRemote
+import com.voiddeveloper.tictactoe.domain.controllers.MultiPlayerGame
+import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
 import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.GamePlayStrategy
 import com.voiddeveloper.tictactoe.model.GameScreenDetails
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.SinglePlayerMode
+import kotlinx.coroutines.CoroutineScope
 
 interface GameControllerFactory {
-    fun create(gameScreenDetails: GameScreenDetails): GameController
+    fun create(gameScreenDetails: GameScreenDetails, coroutineScope: CoroutineScope): GameController
 }
 
 class DefaultGameControllerFactory(
     private val aiFactory: GameAiFactory,
 ) : GameControllerFactory {
 
-    override fun create(gameScreenDetails: GameScreenDetails): GameController {
+    override fun create(
+        gameScreenDetails: GameScreenDetails,
+        coroutineScope: CoroutineScope,
+    ): GameController {
 
         return when (val strategy = gameScreenDetails.gamePlayStrategy) {
 
@@ -27,12 +30,13 @@ class DefaultGameControllerFactory(
                 createSinglePlayerController(
                     strategy = strategy,
                     playerDetails = gameScreenDetails.playerDetails,
-                    aiFactory = aiFactory
+                    aiFactory = aiFactory,
+                    coroutineScope = coroutineScope
                 )
             }
 
             is GamePlayStrategy.MultiPlayer -> {
-                SimpleMultiplayerGameController(
+                MultiPlayerGame(
                     playerDetails = gameScreenDetails.playerDetails
                 )
             }
@@ -43,6 +47,7 @@ class DefaultGameControllerFactory(
         strategy: GamePlayStrategy.SinglePlayer,
         playerDetails: PlayerDetails,
         aiFactory: GameAiFactory,
+        coroutineScope: CoroutineScope,
     ): GameController {
 
         when (strategy.singlePlayerMode) {
@@ -57,14 +62,15 @@ class DefaultGameControllerFactory(
                     board = Board()
                 )
 
-                return SimpleSinglePlayerController(
-                    gameAI = gameAI, playerDetails = playerDetails
+                return SinglePlayerLocal(
+                    gameAI = gameAI, playerDetails = playerDetails,
+                    coroutineScope = coroutineScope
                 )
 
             }
 
             is SinglePlayerMode.Remote -> {
-                return RemoteSinglePlayerGameController()
+                return SinglePlayerRemote()
             }
         }
 
