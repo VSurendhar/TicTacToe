@@ -5,6 +5,7 @@ import com.voiddeveloper.tictactoe.model.Board
 import com.voiddeveloper.tictactoe.model.Board.Companion.emptyBoard
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
+import com.voiddeveloper.tictactoe.model.Displayable
 import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
@@ -142,6 +143,10 @@ class SinglePlayerLocal(
         clearBoard()
     }
 
-    data object AiThinking : LocalGameStatus
+    data object AiThinking : LocalGameStatus, Displayable {
+        override fun display(): String {
+            return "Ai Thinking"
+        }
+    }
 
 }

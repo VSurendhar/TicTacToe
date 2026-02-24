@@ -11,8 +11,17 @@ interface GameStatus
 
 interface LocalGameStatus : GameStatus {
     data object InProgress : LocalGameStatus
-    data class Won(val winner: Player, val winningCells: List<Cell>) : LocalGameStatus
-    data object Draw : LocalGameStatus
+    data class Won(val winner: Player, val winningCells: List<Cell>) : LocalGameStatus, Displayable {
+        override fun display(): String {
+            return "${winner.coin} has won"
+        }
+    }
+
+    data object Draw : LocalGameStatus, Displayable {
+        override fun display(): String {
+            return "Game Draw"
+        }
+    }
 
 }
 
@@ -21,7 +30,11 @@ sealed interface RemoteGameStatus : GameStatus {
 
     @Serializable
     @SerialName("PLAYER_CONNECTED")
-    object PlayerConnected : RemoteGameStatus {
+    object PlayerConnected : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "Player has connected"
+        }
+
         override fun toString(): String {
             return "PLAYER CONNECTED"
         }
@@ -29,7 +42,11 @@ sealed interface RemoteGameStatus : GameStatus {
 
     @Serializable
     @SerialName("PLAYER_DISCONNECTED")
-    object PlayerDisconnected : RemoteGameStatus {
+    object PlayerDisconnected : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "Player has disconnected"
+        }
+
         override fun toString(): String {
             return "PLAYER DISCONNECTED"
         }
@@ -59,7 +76,11 @@ sealed interface RemoteGameStatus : GameStatus {
 
     @Serializable
     @SerialName("ROOM_CREATED")
-    object RoomCreated : RemoteGameStatus {
+    object RoomCreated : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "Room has created"
+        }
+
         override fun toString(): String {
             return "ROOM CREATED"
         }
@@ -67,7 +88,11 @@ sealed interface RemoteGameStatus : GameStatus {
 
     @Serializable
     @SerialName("YOU ARE CONNECTED")
-    object YourConnected : RemoteGameStatus {
+    object YourConnected : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "You are connected"
+        }
+
         override fun toString(): String {
             return "YOU ARE CONNECTED"
         }
@@ -123,11 +148,19 @@ sealed interface RemoteGameStatus : GameStatus {
     data class Win(
         val coin: Char,
         val board: List<List<Char?>>,
-    ) : RemoteGameStatus
+    ) : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "$coin has won"
+        }
+    }
 
     @Serializable
     @SerialName("TIE")
-    data class Tie(val board: List<List<Char?>>) : RemoteGameStatus {
+    data class Tie(val board: List<List<Char?>>) : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "Game has drawn"
+        }
+
         override fun toString(): String {
             return "TIE"
         }

@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,9 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
+import com.voiddeveloper.tictactoe.model.Displayable
 import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
@@ -65,10 +69,26 @@ fun GameScreen() {
                 playerList = state.players
             )
 
-            InformationSection(
-                text = "${state.status}",
-                progressShown = state.status is SinglePlayerLocal.AiThinking
-            )
+            val status = state.status
+
+            if (status is Displayable) {
+
+                val isAiThinking =
+                    status is SinglePlayerLocal.AiThinking
+
+                InformationSection(
+                    text = status.display(),
+                    progressShown = isAiThinking
+                )
+
+            } else {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(62.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
 
             GameBoard(
                 modifier = Modifier.fillMaxSize(),
@@ -81,8 +101,6 @@ fun GameScreen() {
                 isWin = state.status is LocalGameStatus.Won,
                 winningCells = (state.status as? LocalGameStatus.Won)?.winningCells
             )
-
-            Spacer(modifier = Modifier.weight(1f))
 
         }
     }
@@ -100,32 +118,25 @@ fun InformationSection(
     text: String,
     progressShown: Boolean,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(62.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            modifier = Modifier,
+            textAlign = TextAlign.Center,
+            text = text,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Spacer(modifier = Modifier.width(18.dp))
         if (progressShown) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
+            CircularProgressIndicator()
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
-
-        if (progressShown) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
