@@ -11,7 +11,7 @@ import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.model.GameStatus
+import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,7 +49,7 @@ class GameViewModel(
                 board = controller.getGameBoard(),
                 players = playerDetails.players,
                 currentPlayer = controller.getCurrentPlayer(),
-                status = GameStatus.InProgress,
+                status = LocalGameStatus.InProgress,
                 showDifficulty = controller is SinglePlayerLocal,
                 gamePlayDifficulty = if (controller is SinglePlayerLocal)
                     controller.getGamePlayDifficulty()
@@ -58,7 +58,7 @@ class GameViewModel(
         )
 
         viewModelScope.launch {
-            controller.gameStatus.collect { status ->
+            controller.localGameStatus.collect { status ->
                 _uiState.update {
                     it.copy(
                         board = controller.getGameBoard(),
@@ -102,7 +102,7 @@ data class GameUiState(
     val board: List<List<Cell>> = Board.emptyBoard,
     val players: List<Player> = emptyList(),
     val currentPlayer: Player? = null,
-    val status: GameStatus = GameStatus.InProgress,
+    val status: LocalGameStatus = LocalGameStatus.InProgress,
     val showDifficulty: Boolean = false,
     val gamePlayDifficulty: GamePlayDifficulty = GamePlayDifficulty.DEFAULT,
 )

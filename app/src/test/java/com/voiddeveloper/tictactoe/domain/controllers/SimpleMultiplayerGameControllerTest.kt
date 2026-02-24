@@ -2,7 +2,7 @@ package com.voiddeveloper.tictactoe.domain.controllers
 
 import com.voiddeveloper.tictactoe.model.Coin
 import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.GameStatus
+import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.PlayerType
@@ -24,13 +24,13 @@ import kotlin.test.assertFailsWith
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("UnusedFlow")
 class SimpleGameControllerTest {
 
 
     private lateinit var gameController: MultiPlayerGame
-    private val player1 = Player(PlayerType.HUMAN, Coin.X)
-    private val player2 = Player(PlayerType.HUMAN, Coin.O)
+    private val player1 = Player(coin = Coin.X, type = PlayerType.HUMAN, playerName = "daf")
+    private val player2 = Player(coin = Coin.O, type = PlayerType.COMPUTER, playerName = "adfa")
+
     private val testDispatcher = StandardTestDispatcher()
 
 
@@ -90,7 +90,7 @@ class SimpleGameControllerTest {
     }
 
     @Test
-    fun `Board state updates after move`() =runTest{
+    fun `Board state updates after move`() = runTest {
 
         gameController.addMove(Coordinate(0, 0))
 
@@ -101,12 +101,12 @@ class SimpleGameControllerTest {
 
     @Test
     fun `Detect win - Horizontal`() = runTest(StandardTestDispatcher()) {
-        var status: GameStatus? = null
+        var status: LocalGameStatus? = null
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -122,8 +122,8 @@ class SimpleGameControllerTest {
         advanceUntilIdle()
 
         status = emissions.last()
-        assertTrue(status is GameStatus.Won)
-        assertEquals(player1, (status as GameStatus.Won).winner)
+        assertTrue(status is LocalGameStatus.Won)
+        assertEquals(player1, (status as LocalGameStatus.Won).winner)
 
         job.cancel()
     }
@@ -132,17 +132,17 @@ class SimpleGameControllerTest {
     @Test
     fun `Detect win - Vertical`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
 
         advanceUntilIdle()
 
-        var status: GameStatus? = null
+        var status: LocalGameStatus? = null
 
         gameController.addMove(Coordinate(0, 0)) // X
         gameController.addMove(Coordinate(0, 1)) // O
@@ -152,8 +152,8 @@ class SimpleGameControllerTest {
 
         status = emissions.last()
 
-        assertTrue(status is GameStatus.Won)
-        assertEquals(player1, (status as GameStatus.Won).winner)
+        assertTrue(status is LocalGameStatus.Won)
+        assertEquals(player1, (status as LocalGameStatus.Won).winner)
 
         advanceUntilIdle()
 
@@ -165,17 +165,17 @@ class SimpleGameControllerTest {
     fun `Detect win - Main Diagonal`() = runTest {
 
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
 
         advanceUntilIdle()
 
-        var status: GameStatus? = null
+        var status: LocalGameStatus? = null
 
         gameController.addMove(Coordinate(0, 0)) // X
         gameController.addMove(Coordinate(0, 1)) // O
@@ -185,8 +185,8 @@ class SimpleGameControllerTest {
 
         status = emissions.last()
 
-        assertTrue(status is GameStatus.Won)
-        assertEquals(player1, (status as GameStatus.Won).winner)
+        assertTrue(status is LocalGameStatus.Won)
+        assertEquals(player1, (status as LocalGameStatus.Won).winner)
 
         job.cancel()
     }
@@ -195,10 +195,10 @@ class SimpleGameControllerTest {
     @Test
     fun `Detect win - Anti Diagonal`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -213,8 +213,8 @@ class SimpleGameControllerTest {
 
         val status = emissions.last()
 
-        assertTrue(status is GameStatus.Won)
-        assertEquals(player1, (status as GameStatus.Won).winner)
+        assertTrue(status is LocalGameStatus.Won)
+        assertEquals(player1, (status as LocalGameStatus.Won).winner)
 
         job.cancel()
     }
@@ -222,10 +222,10 @@ class SimpleGameControllerTest {
     @Test
     fun `Winning event contains correct winning cells`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -238,12 +238,13 @@ class SimpleGameControllerTest {
         gameController.addMove(Coordinate(1, 1)) // O
         gameController.addMove(Coordinate(0, 2)) // X wins
 
-        val winState = emissions.last() as? GameStatus.Won
+        val winState = emissions.last() as? LocalGameStatus.Won
 
         assertNotNull(winState)
 
         assertEquals(3, winState?.winningCells?.size)
-        assertTrue(winState?.winningCells?.all { it.col == 0 } == true)
+        println(winState?.winningCells)
+        assertTrue(winState?.winningCells?.all { it.row == 0 } == true)
 
         job.cancel()
     }
@@ -254,10 +255,10 @@ class SimpleGameControllerTest {
     @Test
     fun `Detect draw`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.gameStatus.collect {
+            gameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -274,7 +275,7 @@ class SimpleGameControllerTest {
         gameController.addMove(Coordinate(2, 0)) // O
         gameController.addMove(Coordinate(2, 2)) // X -> Draw
 
-        assertTrue(emissions.last() is GameStatus.Draw)
+        assertTrue(emissions.last() is LocalGameStatus.Draw)
 
         job.cancel()
 

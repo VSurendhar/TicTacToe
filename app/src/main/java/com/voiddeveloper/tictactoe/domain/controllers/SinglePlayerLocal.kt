@@ -6,7 +6,7 @@ import com.voiddeveloper.tictactoe.model.Board.Companion.emptyBoard
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.GameStatus
+import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.PlayerType
@@ -24,8 +24,9 @@ class SinglePlayerLocal(
     coroutineScope: CoroutineScope,
 ) : GameController {
 
-    private val _gameStatus: MutableSharedFlow<GameStatus> = MutableSharedFlow()
-    override val gameStatus: SharedFlow<GameStatus> = _gameStatus.asSharedFlow()
+    private val aiThinkingDelay = 500L
+    private val _gameStatus: MutableSharedFlow<LocalGameStatus> = MutableSharedFlow()
+    override val localGameStatus: SharedFlow<LocalGameStatus> = _gameStatus.asSharedFlow()
 
     private val board = Board()
     private val gameOver: Boolean
@@ -44,7 +45,7 @@ class SinglePlayerLocal(
 
         if (curPlayer.type == PlayerType.COMPUTER) {
             _gameStatus.emit(AiThinking)
-            delay(300)
+            delay(aiThinkingDelay)
 
             val cell = gameAI.play()
             val coordinate = Coordinate(cell.row, cell.col)
@@ -63,7 +64,7 @@ class SinglePlayerLocal(
         val randomIndex = if (Random.nextBoolean()) 0 else 1
         playerDetails.setStartingIndex(randomIndex)
         refreshAi(board.getBoard())
-        _gameStatus.emit(GameStatus.InProgress)
+        _gameStatus.emit(LocalGameStatus.InProgress)
         startMoveIfNeed()
     }
 
@@ -96,25 +97,25 @@ class SinglePlayerLocal(
 
         val newState = when {
             winPlayer != null -> {
-                GameStatus.Won(winPlayer, board.getWinningCells(curPlayer))
+                LocalGameStatus.Won(winPlayer, board.getWinningCells(curPlayer))
             }
 
             isDraw -> {
-                GameStatus.Draw
+                LocalGameStatus.Draw
             }
 
             else -> {
                 playerDetails.togglePlayer()
                 curPlayer = playerDetails.getCurPlayer()
-                GameStatus.InProgress
+                LocalGameStatus.InProgress
             }
         }
 
         _gameStatus.emit(newState)
 
-        if (newState is GameStatus.InProgress && curPlayer.type == PlayerType.COMPUTER) {
+        if (newState is LocalGameStatus.InProgress && curPlayer.type == PlayerType.COMPUTER) {
             _gameStatus.emit(AiThinking)
-            delay(300)
+            delay(aiThinkingDelay)
 
             val cell = gameAI.play()
             val nextCoordinate = Coordinate(cell.row, cell.col)
@@ -141,6 +142,6 @@ class SinglePlayerLocal(
         clearBoard()
     }
 
-    data object AiThinking : GameStatus
+    data object AiThinking : LocalGameStatus
 
 }

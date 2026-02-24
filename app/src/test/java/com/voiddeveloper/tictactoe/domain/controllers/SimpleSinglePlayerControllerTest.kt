@@ -7,7 +7,7 @@ import com.voiddeveloper.tictactoe.model.Board.Companion.emptyBoard
 import com.voiddeveloper.tictactoe.model.Coin
 import com.voiddeveloper.tictactoe.model.Coordinate
 import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.GameStatus
+import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.PlayerType
@@ -30,8 +30,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SimpleSinglePlayerControllerTest {
 
-    private val player1 = Player(coin = Coin.X, type = PlayerType.HUMAN , "daf")
-    private val player2 = Player(coin = Coin.O, type = PlayerType.COMPUTER , "adfa")
+    private val player1 = Player(coin = Coin.X, type = PlayerType.HUMAN ,  playerName = "daf")
+    private val player2 = Player(coin = Coin.O, type = PlayerType.COMPUTER ,  playerName = "adfa")
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -61,10 +61,10 @@ class SimpleSinglePlayerControllerTest {
     @Test
     fun `human move should emit InProgress, AiThinking, InProgress`() = runTest {
 
-        val emissions: MutableList<GameStatus> = mutableListOf()
+        val emissions: MutableList<LocalGameStatus> = mutableListOf()
 
         val job = launch {
-            simpleSinglePlayerGameController.gameStatus.collect {
+            simpleSinglePlayerGameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -77,9 +77,9 @@ class SimpleSinglePlayerControllerTest {
         println(emissions)
 
         assertEquals(3, emissions.size)
-        assertTrue(emissions[0] is GameStatus.InProgress)
+        assertTrue(emissions[0] is LocalGameStatus.InProgress)
         assertTrue(emissions[1] is SinglePlayerLocal.AiThinking)
-        assertTrue(emissions[2] is GameStatus.InProgress)
+        assertTrue(emissions[2] is LocalGameStatus.InProgress)
 
         job.cancel()
     }
@@ -88,10 +88,10 @@ class SimpleSinglePlayerControllerTest {
     @Test
     fun `ai winning move should emit Won`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            simpleSinglePlayerGameController.gameStatus.collect {
+            simpleSinglePlayerGameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -111,8 +111,8 @@ class SimpleSinglePlayerControllerTest {
         val last = emissions.last()
         advanceUntilIdle()
 
-        assertTrue(last is GameStatus.Won)
-        assertEquals(player2, (last as GameStatus.Won).winner)
+        assertTrue(last is LocalGameStatus.Won)
+        assertEquals(player2, (last as LocalGameStatus.Won).winner)
 
         job.cancel()
     }
@@ -122,10 +122,10 @@ class SimpleSinglePlayerControllerTest {
     @Test
     fun `game should emit Draw`() = runTest {
 
-        val emissions = mutableListOf<GameStatus>()
+        val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            simpleSinglePlayerGameController.gameStatus.collect {
+            simpleSinglePlayerGameController.localGameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -149,7 +149,7 @@ class SimpleSinglePlayerControllerTest {
 
         val last = emissions.last()
 
-        assertTrue(last is GameStatus.Draw)
+        assertTrue(last is LocalGameStatus.Draw)
 
         job.cancel()
 

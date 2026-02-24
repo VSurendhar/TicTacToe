@@ -3,7 +3,7 @@ package com.voiddeveloper.tictactoe.domain.controllers
 import com.voiddeveloper.tictactoe.model.Board
 import com.voiddeveloper.tictactoe.model.Cell
 import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.GameStatus
+import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,9 +15,9 @@ class MultiPlayerGame(
     val playerDetails: PlayerDetails,
 ) : GameController {
 
-    private val _gameStatus: MutableSharedFlow<GameStatus> =
+    private val _Local_gameStatus: MutableSharedFlow<LocalGameStatus> =
         MutableSharedFlow()
-    override val gameStatus: SharedFlow<GameStatus> = _gameStatus.asSharedFlow()
+    override val localGameStatus: SharedFlow<LocalGameStatus> = _Local_gameStatus.asSharedFlow()
 
     private val board = Board()
 
@@ -54,20 +54,20 @@ class MultiPlayerGame(
 
         val newState = when {
             winPlayer != null -> {
-                GameStatus.Won(winPlayer, getWinningCells(curPlayer))
+                LocalGameStatus.Won(winPlayer, getWinningCells(curPlayer))
             }
 
             isDraw -> {
-                GameStatus.Draw
+                LocalGameStatus.Draw
             }
 
             else -> {
                 togglePlayer()
-                GameStatus.InProgress
+                LocalGameStatus.InProgress
             }
         }
 
-        _gameStatus.emit(newState)
+        _Local_gameStatus.emit(newState)
 
     }
 
@@ -105,7 +105,7 @@ class MultiPlayerGame(
         board.clearBoard()
         val randomIndex = if (Random.nextBoolean()) 0 else 1
         playerDetails.setStartingIndex(randomIndex)
-        _gameStatus.emit(GameStatus.InProgress)
+        _Local_gameStatus.emit(LocalGameStatus.InProgress)
     }
 
 }
