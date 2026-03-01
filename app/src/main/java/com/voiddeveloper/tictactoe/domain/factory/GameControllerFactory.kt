@@ -31,7 +31,6 @@ class DefaultGameControllerFactory(
                     strategy = strategy,
                     playerDetails = gameScreenDetails.playerDetails,
                     aiFactory = aiFactory,
-                    coroutineScope = coroutineScope
                 )
             }
 
@@ -47,7 +46,6 @@ class DefaultGameControllerFactory(
         strategy: GamePlayStrategy.SinglePlayer,
         playerDetails: PlayerDetails,
         aiFactory: GameAiFactory,
-        coroutineScope: CoroutineScope,
     ): GameController {
 
         when (strategy.singlePlayerMode) {
@@ -63,8 +61,7 @@ class DefaultGameControllerFactory(
                 )
 
                 return SinglePlayerLocal(
-                    gameAI = gameAI, playerDetails = playerDetails,
-                    coroutineScope = coroutineScope
+                    gameAI = gameAI, playerDetails = playerDetails
                 )
 
             }

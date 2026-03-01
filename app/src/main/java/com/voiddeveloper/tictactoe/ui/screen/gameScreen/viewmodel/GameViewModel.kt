@@ -14,10 +14,13 @@ import com.voiddeveloper.tictactoe.model.GameScreenDetails
 import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 class GameViewModel(
@@ -27,9 +30,11 @@ class GameViewModel(
 
     private val controller: GameController
     private val playerDetails: PlayerDetails
+    private var controllerJob: Job? = null
 
     private val _uiState: MutableStateFlow<GameUiState>
     val uiState: StateFlow<GameUiState> get() = _uiState
+    private val mutex = Mutex()
 
     init {
 
@@ -72,27 +77,44 @@ class GameViewModel(
             }
         }
 
+        if (controller is SinglePlayerLocal) {
+            launchController {
+                controller.startMoveIfNeed()
+            }
+        }
+
     }
 
     fun onMove(coordinate: Coordinate) {
-        viewModelScope.launch {
+        launchController {
             controller.addMove(coordinate)
         }
     }
 
-    fun onGamePlayDifficultyChange(gamePlayDifficulty: GamePlayDifficulty) {
-        viewModelScope.launch {
-            when (controller) {
-                is SinglePlayerLocal -> {
-                    controller.changeGamePlayDifficulty(gamePlayDifficulty)
-                }
+    fun onGamePlayDifficultyChange(difficulty: GamePlayDifficulty) {
+        launchController {
+            if (controller is SinglePlayerLocal) {
+                controller.changeGamePlayDifficulty(difficulty)
             }
         }
+        onClearBoard()
     }
 
     fun onClearBoard() {
-        viewModelScope.launch {
+        _uiState.update { it.copy(status = LocalGameStatus.InProgress) }
+
+        launchController {
             controller.clearBoard()
+        }
+
+    }
+
+    private fun launchController(block: suspend () -> Unit) {
+        controllerJob?.cancel()
+        controllerJob = viewModelScope.launch {
+            mutex.withLock {
+                block()
+            }
         }
     }
 

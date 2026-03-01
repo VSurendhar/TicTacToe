@@ -11,35 +11,25 @@ import com.voiddeveloper.tictactoe.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.model.Player
 import com.voiddeveloper.tictactoe.model.PlayerDetails
 import com.voiddeveloper.tictactoe.model.PlayerType
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class SinglePlayerLocal(
     private var gameAI: GameAI,
     val playerDetails: PlayerDetails,
-    coroutineScope: CoroutineScope,
 ) : GameController {
 
-    private val aiThinkingDelay = 500L
+    private val aiThinkingDelay = 300L
     private val _gameStatus: MutableSharedFlow<LocalGameStatus> = MutableSharedFlow()
     override val localGameStatus: SharedFlow<LocalGameStatus> = _gameStatus.asSharedFlow()
-
     private val board = Board()
     private val gameOver: Boolean
         get() = board.isAllFilled() || board.isWin(playerDetails.players.first()) != null || board.isWin(
             playerDetails.players.last()
         ) != null
-
-    init {
-        coroutineScope.launch {
-            startMoveIfNeed()
-        }
-    }
 
     suspend fun startMoveIfNeed() {
         val curPlayer = getCurrentPlayer()
@@ -47,7 +37,6 @@ class SinglePlayerLocal(
         if (curPlayer.type == PlayerType.COMPUTER) {
             _gameStatus.emit(AiThinking)
             delay(aiThinkingDelay)
-
             val cell = gameAI.play()
             val coordinate = Coordinate(cell.row, cell.col)
             addMove(coordinate)
@@ -64,8 +53,8 @@ class SinglePlayerLocal(
         board.clearBoard()
         val randomIndex = if (Random.nextBoolean()) 0 else 1
         playerDetails.setStartingIndex(randomIndex)
-        refreshAi(board.getBoard())
         _gameStatus.emit(LocalGameStatus.InProgress)
+        refreshAi(board.getBoard())
         startMoveIfNeed()
     }
 

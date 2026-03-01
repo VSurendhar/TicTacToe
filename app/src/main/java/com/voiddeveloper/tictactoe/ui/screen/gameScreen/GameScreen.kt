@@ -59,7 +59,7 @@ fun GameScreen() {
                 onDifficultyClick = {
                     showDifficultyDialog = true
                 },
-                onReplayClick = {
+                onRefreshClick = {
                     viewModel.onClearBoard()
                 },
             )

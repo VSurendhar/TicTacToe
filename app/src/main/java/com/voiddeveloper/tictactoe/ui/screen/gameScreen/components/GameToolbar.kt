@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun GameToolbar(
     showDifficulty: Boolean,
-    onReplayClick: () -> Unit,
+    onRefreshClick: () -> Unit,
     onDifficultyClick: () -> Unit,
 ) {
     Row(
@@ -32,7 +32,7 @@ fun GameToolbar(
             }
         }
 
-        IconButton(onClick = onReplayClick) {
+        IconButton(onClick = onRefreshClick) {
             Icon(Icons.Default.Refresh, contentDescription = "Replay")
         }
 
@@ -44,7 +44,7 @@ fun GameToolbar(
 fun PreviewGameToolbar() {
     GameToolbar(
         showDifficulty = false,
-        onReplayClick = {},
+        onRefreshClick = {},
         onDifficultyClick = {}
     )
 }
