@@ -26,7 +26,7 @@ val appModule = module {
         DefaultGameAiFactory()
     }
 
-    factory {
+    single {
         GameDetailsProtoDataStoreManager(androidContext())
     }
 

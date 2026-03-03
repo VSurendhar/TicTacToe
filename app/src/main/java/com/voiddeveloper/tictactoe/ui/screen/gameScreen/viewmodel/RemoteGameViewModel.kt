@@ -13,6 +13,7 @@ import com.voiddeveloper.tictactoe.data.utils.Utils.getPlayerName
 import com.voiddeveloper.tictactoe.data.utils.Utils.toCellBoard
 import com.voiddeveloper.tictactoe.domain.model.Board
 import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Coin
 import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.domain.model.Player
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 
 class RemoteGameViewModel(
     private val repo: RemoteRepository,
@@ -48,7 +48,8 @@ class RemoteGameViewModel(
                     is RemoteGameStatus.RoomCreated -> {
                         _uiState.update {
                             it.copy(
-                                status = it.status.plus(RemoteGameStatus.RoomCreated)
+                                status = it.status.plus(RemoteGameStatus.RoomCreated),
+                                isWin = false,
                             )
                         }
                     }
@@ -71,6 +72,7 @@ class RemoteGameViewModel(
                                             .getPlayerName(assignedChar.getCoin())
                                     )
                                 },
+                                isWin = false,
                                 roomId = roomId.getCleanId()
                             )
                         }
@@ -90,7 +92,8 @@ class RemoteGameViewModel(
                                         coin = assignedChar.getCoin(),
                                         playerName = "Other"
                                     )
-                                )
+                                ),
+                                isWin = false,
                             )
                         }
 
@@ -100,6 +103,7 @@ class RemoteGameViewModel(
                         _uiState.update {
                             it.copy(
                                 status = it.status.plus(response.message),
+                                isWin = false,
                             )
                         }
                     }
@@ -110,7 +114,33 @@ class RemoteGameViewModel(
                                 currentPlayer = it.players.firstOrNull { player ->
                                     player.coin == response.message.playerCoin.getCoin()
                                 },
+                                isWin = false,
                                 board = response.message.board.toCellBoard(it.players.first { it.playerName == "You" }.coin),
+                            )
+                        }
+                    }
+
+                    is RemoteGameStatus.Win -> {
+                        val boardSnapShot =
+                            response.message.board.toCellBoard(_uiState.value.players.first { it.playerName == "You" }.coin)
+                        _uiState.update {
+                            it.copy(
+                                status = it.status.plus(response.message),
+                                board = boardSnapShot,
+                                currentPlayer = null,
+                                isWin = true,
+                                winningCells = boardSnapShot.getWinningCells(response.message.coin.getCoin())
+                            )
+                        }
+                    }
+
+                    is RemoteGameStatus.Tie -> {
+                        _uiState.update {
+                            it.copy(
+                                status = it.status.plus(response.message),
+                                board = response.message.board.toCellBoard(it.players.first { it.playerName == "You" }.coin),
+                                currentPlayer = null,
+                                isWin = false,
                             )
                         }
                     }
@@ -119,6 +149,29 @@ class RemoteGameViewModel(
                 }
             }
         }
+    }
+
+    private fun List<List<Cell>>.getWinningCells(coin: Coin?): List<Cell> {
+        this.forEach { row ->
+            if (row.all { it.player?.coin == coin }) {
+                return row
+            }
+        }
+
+        this.first().indices.forEach { col ->
+            if (this.all { it[col].player?.coin == coin }) {
+                return this.map { it[col] }
+            }
+        }
+
+        if (this.indices.all { i -> this[i][i].player?.coin == coin }) {
+            return this.indices.map { i -> this[i][i] }
+        }
+
+        if (this.indices.all { i -> this[i][this.size - 1 - i].player?.coin == coin }) {
+            return this.indices.map { i -> this[i][this.size - 1 - i] }
+        }
+        return emptyList()
     }
 
     private fun saveAssignedChar(assignedChar: Char) {

@@ -16,6 +16,9 @@ object Utils {
     }
 
     fun Coin?.getPlayerName(myCoin: Coin?): String {
+        if (myCoin == null) {
+            return "Null"
+        }
         return if (myCoin == this) "You" else "Other"
     }
 
