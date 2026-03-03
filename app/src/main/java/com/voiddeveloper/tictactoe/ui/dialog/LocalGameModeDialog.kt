@@ -10,14 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.model.Coin
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.GamePlayStrategy
-import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
-import com.voiddeveloper.tictactoe.model.PlayerType
-import com.voiddeveloper.tictactoe.model.SinglePlayerMode
+import com.voiddeveloper.tictactoe.domain.model.Coin
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.GameScreenDetails
+import com.voiddeveloper.tictactoe.domain.model.LocalGamePlayStrategy
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.PlayerType
 
 @Composable
 fun LocalGameModeDialog(
@@ -49,11 +48,9 @@ fun LocalGameModeDialog(
                                         playerName = "Human 1"
                                     )
                                 )
-                            ), gamePlayStrategy = GamePlayStrategy.SinglePlayer(
-                                singlePlayerMode = SinglePlayerMode.Local(
-                                    difficulty = GamePlayDifficulty.EASY,
-                                    gameAi = "SimpleGameAi"
-                                )
+                            ), localGamePlayStrategy = LocalGamePlayStrategy.SinglePlayer(
+                                difficulty = GamePlayDifficulty.EASY,
+                                gameAi = "SimpleGameAi"
                             )
                         )
                     )
@@ -77,7 +74,7 @@ fun LocalGameModeDialog(
                                         playerName = "Human 2"
                                     )
                                 )
-                            ), gamePlayStrategy = GamePlayStrategy.MultiPlayer
+                            ), localGamePlayStrategy = LocalGamePlayStrategy.MultiPlayer
                         )
                     )
                 }) {

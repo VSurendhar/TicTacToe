@@ -1,6 +1,6 @@
 package com.voiddeveloper.tictactoe.domain
 
-import com.voiddeveloper.tictactoe.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Cell
 
 object Utils {
     const val GAME_BOARD_SIZE = 3

@@ -1,4 +1,4 @@
-package com.voiddeveloper.tictactoe.ui.screen
+package com.voiddeveloper.tictactoe.ui.screen.modeSelectionScreen
 
 import android.app.UiModeManager
 import androidx.compose.foundation.layout.Arrangement
@@ -22,18 +22,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.model.GamePlayStrategy
-import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.model.SinglePlayerMode
+import com.voiddeveloper.tictactoe.domain.model.GameScreenDetails
+import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
 import com.voiddeveloper.tictactoe.ui.dialog.LocalGameModeDialog
+import com.voiddeveloper.tictactoe.ui.dialog.OnlineGameModeDialog
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 
 @Composable
 fun ModeSelectionScreen(
-    navigateToGameScreen: (GameScreenDetails) -> Unit,
+    navigateToLocalGame: (GameScreenDetails) -> Unit,
+    navigateToRemoteGame: (RemoteGameCommand) -> Unit,
 ) {
 
     var showLocalDialog by remember { mutableStateOf(false) }
+    var showRemoteDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -66,13 +68,7 @@ fun ModeSelectionScreen(
 
             OutlinedButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    navigateToGameScreen(
-                        GameScreenDetails(
-                            gamePlayStrategy = GamePlayStrategy.SinglePlayer(SinglePlayerMode.Remote)
-                        )
-                    )
-                }
+                onClick = { showRemoteDialog = true }
             ) {
                 Text("Remote")
             }
@@ -83,9 +79,27 @@ fun ModeSelectionScreen(
         LocalGameModeDialog(
             navigateToGameScreen = { gameScreenDetails ->
                 showLocalDialog = false
-                navigateToGameScreen(gameScreenDetails)
+                navigateToLocalGame(gameScreenDetails)
             },
             onDismiss = { showLocalDialog = false }
+        )
+    }
+
+    if (showRemoteDialog) {
+        OnlineGameModeDialog(
+            onCreateRoom = {
+                showRemoteDialog = false
+                navigateToRemoteGame(RemoteGameCommand.CreateRoom)
+            },
+            onJoinRoom = { roomCode ->
+                showRemoteDialog = false
+                navigateToRemoteGame(
+                    RemoteGameCommand.JoinRoom(
+                        roomId = roomCode
+                    )
+                )
+            },
+            onDismiss = { showRemoteDialog = false }
         )
     }
 }
@@ -94,6 +108,6 @@ fun ModeSelectionScreen(
 @Preview(showBackground = true, uiMode = UiModeManager.MODE_NIGHT_YES)
 fun ModeSelectionScreenPreview() {
     TicTacToeTheme {
-        ModeSelectionScreen {}
+        ModeSelectionScreen({}, {})
     }
 }

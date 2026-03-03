@@ -1,11 +1,11 @@
 package com.voiddeveloper.tictactoe.domain.controllers
 
-import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.Board
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -17,7 +17,7 @@ class MultiPlayerGame(
 
     private val _Local_gameStatus: MutableSharedFlow<LocalGameStatus> =
         MutableSharedFlow()
-    override val localGameStatus: SharedFlow<LocalGameStatus> = _Local_gameStatus.asSharedFlow()
+    override val gameStatus: SharedFlow<LocalGameStatus> = _Local_gameStatus.asSharedFlow()
 
     private val board = Board()
 

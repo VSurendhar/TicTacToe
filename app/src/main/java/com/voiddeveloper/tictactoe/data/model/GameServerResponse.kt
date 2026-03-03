@@ -1,29 +1,18 @@
-package com.voiddeveloper.tictactoe.model
+package com.voiddeveloper.tictactoe.data.model
 
+import com.voiddeveloper.tictactoe.domain.model.Displayable
+import com.voiddeveloper.tictactoe.domain.model.GameStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-interface Displayable {
-    fun display(): String
-}
 
-interface GameStatus
-
-interface LocalGameStatus : GameStatus {
-    data object InProgress : LocalGameStatus
-    data class Won(val winner: Player, val winningCells: List<Cell>) : LocalGameStatus, Displayable {
-        override fun display(): String {
-            return "${winner.coin} has won"
-        }
-    }
-
-    data object Draw : LocalGameStatus, Displayable {
-        override fun display(): String {
-            return "Game Draw"
-        }
-    }
-
-}
+@Serializable
+data class GameServerResponse(
+    val userId: String? = null,
+    val roomId: String? = null,
+    val assignedChar: Char? = null,
+    val message: RemoteGameStatus,
+)
 
 @Serializable
 sealed interface RemoteGameStatus : GameStatus {
@@ -87,14 +76,19 @@ sealed interface RemoteGameStatus : GameStatus {
     }
 
     @Serializable
+    @SerialName("UNSPECIFIED")
+    object UnSpecified : RemoteGameStatus {
+        override fun toString(): String {
+            return "UNSPECIFIED"
+        }
+    }
+
+
+    @Serializable
     @SerialName("YOU ARE CONNECTED")
-    object YourConnected : RemoteGameStatus, Displayable {
+    data class YourConnected(val players: List<Char>) : RemoteGameStatus, Displayable {
         override fun display(): String {
             return "You are connected"
-        }
-
-        override fun toString(): String {
-            return "YOU ARE CONNECTED"
         }
     }
 
@@ -120,14 +114,6 @@ sealed interface RemoteGameStatus : GameStatus {
     object AlreadyFilled : RemoteGameStatus {
         override fun toString(): String {
             return "ALREADY FILLED"
-        }
-    }
-
-    @Serializable
-    @SerialName("YOUR_TURN")
-    object YourTurn : RemoteGameStatus {
-        override fun toString(): String {
-            return "YOUR TURN"
         }
     }
 

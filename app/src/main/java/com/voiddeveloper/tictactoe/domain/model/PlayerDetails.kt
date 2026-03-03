@@ -1,7 +1,6 @@
-package com.voiddeveloper.tictactoe.model
+package com.voiddeveloper.tictactoe.domain.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 data class PlayerDetails(

@@ -1,11 +1,11 @@
 package com.voiddeveloper.tictactoe.domain.controllers
 
-import com.voiddeveloper.tictactoe.model.Coin
-import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
-import com.voiddeveloper.tictactoe.model.PlayerType
+import com.voiddeveloper.tictactoe.domain.model.Coin
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.PlayerType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -106,7 +106,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -135,7 +135,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -168,7 +168,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -198,7 +198,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -225,7 +225,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -258,7 +258,7 @@ class SimpleGameControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            gameController.localGameStatus.collect {
+            gameController.gameStatus.collect {
                 emissions.add(it)
             }
         }

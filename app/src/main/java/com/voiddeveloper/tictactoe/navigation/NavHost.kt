@@ -5,9 +5,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.ui.screen.ModeSelectionScreen
-import com.voiddeveloper.tictactoe.ui.screen.gameScreen.GameScreen
+import com.voiddeveloper.tictactoe.domain.model.GameScreenDetails
+import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
+import com.voiddeveloper.tictactoe.ui.screen.modeSelectionScreen.ModeSelectionScreen
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.local.LocalGameScreen
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.remote.RemoteGameScreen
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
@@ -21,7 +23,7 @@ fun AppNavHost(
     ) {
 
         composable<MainScreen> {
-            ModeSelectionScreen(navigateToGameScreen = { gameDetails : GameScreenDetails ->
+            ModeSelectionScreen(navigateToLocalGame = { gameDetails: GameScreenDetails ->
                 val randomIndex = if (Random.nextBoolean()) 0 else 1
                 val newDetails = gameDetails.copy(
                     playerDetails = gameDetails.playerDetails.copy().apply {
@@ -29,12 +31,23 @@ fun AppNavHost(
                     }
                 )
                 val json = Json.encodeToString(newDetails)
-                navController.navigate(GameScreeRoute(json))
+                navController.navigate(LocalGameScreeRoute(json))
+            }, navigateToRemoteGame = {
+                val json = Json.encodeToString(it)
+                navController.navigate(RemoteGameScreeRoute(json))
             })
         }
 
-        composable<GameScreeRoute> {
-            GameScreen()
+        composable<LocalGameScreeRoute> {
+            LocalGameScreen()
+        }
+
+        composable<RemoteGameScreeRoute> {
+            val remoteGameCommandStr = it.arguments?.getString("remoteGameCommand") ?: return@composable
+            val remoteGameCommand = Json.decodeFromString<RemoteGameCommand>(remoteGameCommandStr)
+            RemoteGameScreen(
+                remoteGameCommand = remoteGameCommand
+            )
         }
 
     }

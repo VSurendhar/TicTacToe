@@ -7,6 +7,11 @@ import kotlinx.serialization.Serializable
 data object MainScreen
 
 @Serializable
-data class GameScreeRoute(
+data class LocalGameScreeRoute(
     val gameScreenDetailsJson: String
+)
+
+@Serializable
+data class RemoteGameScreeRoute(
+    val remoteGameCommand: String
 )

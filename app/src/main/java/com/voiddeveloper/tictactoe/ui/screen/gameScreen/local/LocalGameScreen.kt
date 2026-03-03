@@ -1,4 +1,4 @@
-package com.voiddeveloper.tictactoe.ui.screen.gameScreen
+package com.voiddeveloper.tictactoe.ui.screen.gameScreen.local
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,21 +25,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
-import com.voiddeveloper.tictactoe.model.Displayable
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Displayable
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
 import com.voiddeveloper.tictactoe.ui.dialog.DifficultyDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameToolbar
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.PlayerIndicator
-import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.GameViewModel
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.LocalGameViewModel
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun GameScreen() {
+fun LocalGameScreen() {
 
     var showDifficultyDialog by remember { mutableStateOf(false) }
-    val viewModel: GameViewModel = koinViewModel()
+    val viewModel: LocalGameViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -142,8 +142,8 @@ fun InformationSection(
 
 @Preview
 @Composable
-fun PreviewGameScreen() {
+fun PreviewLocalGameScreen() {
     TicTacToeTheme {
-        GameScreen()
+        LocalGameScreen()
     }
 }

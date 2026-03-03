@@ -6,14 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.voiddeveloper.tictactoe.domain.controllers.GameController
 import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
 import com.voiddeveloper.tictactoe.domain.factory.GameControllerFactory
-import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.Board
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.GameScreenDetails
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +23,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
-class GameViewModel(
+class LocalGameViewModel(
     gameControllerFactory: GameControllerFactory,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -63,7 +63,7 @@ class GameViewModel(
         )
 
         viewModelScope.launch {
-            controller.localGameStatus.collect { status ->
+            controller.gameStatus.collect { status ->
                 _uiState.update {
                     it.copy(
                         board = controller.getGameBoard(),

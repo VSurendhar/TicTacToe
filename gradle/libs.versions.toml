@@ -11,6 +11,9 @@ composeBom = "2024.09.00"
 foundation = "1.10.1"
 navigationCompose = "2.8.7"
 material = "1.13.0"
+datastoreCore = "1.2.0"
+datastoreProto = "1.0.0"
+protobufJavalite = "4.33.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +33,8 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastoreCore" }
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

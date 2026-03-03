@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_package = "com.voiddeveloper.tictactoe.data.datastore.proto";
+option java_multiple_files = true;
+
+message GameDetailsCache {
+  string userId = 1;
+  string roomId = 2;
+  CoordinateCache lastModified = 3;
+  BoardCache board = 4;
+  string assignedChar = 5;
+}
+
+message BoardCache {
+  repeated BoardRowCache rows = 1;
+}
+
+message BoardRowCache {
+  repeated string cells = 1;
+}
+
+message CoordinateCache {
+  int32 row = 1;
+  int32 col = 2;
+}

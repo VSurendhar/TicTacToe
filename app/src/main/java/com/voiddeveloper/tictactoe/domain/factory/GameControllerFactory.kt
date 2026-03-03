@@ -1,14 +1,11 @@
 package com.voiddeveloper.tictactoe.domain.factory
 
 import com.voiddeveloper.tictactoe.domain.controllers.GameController
-import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerRemote
 import com.voiddeveloper.tictactoe.domain.controllers.MultiPlayerGame
 import com.voiddeveloper.tictactoe.domain.controllers.SinglePlayerLocal
-import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.GamePlayStrategy
-import com.voiddeveloper.tictactoe.model.GameScreenDetails
-import com.voiddeveloper.tictactoe.model.PlayerDetails
-import com.voiddeveloper.tictactoe.model.SinglePlayerMode
+import com.voiddeveloper.tictactoe.domain.model.Board
+import com.voiddeveloper.tictactoe.domain.model.LocalGamePlayStrategy
+import com.voiddeveloper.tictactoe.domain.model.GameScreenDetails
 import kotlinx.coroutines.CoroutineScope
 
 interface GameControllerFactory {
@@ -24,53 +21,30 @@ class DefaultGameControllerFactory(
         coroutineScope: CoroutineScope,
     ): GameController {
 
-        return when (val strategy = gameScreenDetails.gamePlayStrategy) {
+        return when (val strategy = gameScreenDetails.localGamePlayStrategy) {
 
-            is GamePlayStrategy.SinglePlayer -> {
-                createSinglePlayerController(
-                    strategy = strategy,
-                    playerDetails = gameScreenDetails.playerDetails,
-                    aiFactory = aiFactory,
-                )
-            }
+            is LocalGamePlayStrategy.SinglePlayer -> {
 
-            is GamePlayStrategy.MultiPlayer -> {
-                MultiPlayerGame(
-                    playerDetails = gameScreenDetails.playerDetails
-                )
-            }
-        }
-    }
-
-    private fun createSinglePlayerController(
-        strategy: GamePlayStrategy.SinglePlayer,
-        playerDetails: PlayerDetails,
-        aiFactory: GameAiFactory,
-    ): GameController {
-
-        when (strategy.singlePlayerMode) {
-            is SinglePlayerMode.Local -> {
-
-                val difficulty = strategy.singlePlayerMode.difficulty
-                val singlePlayerMode = strategy.singlePlayerMode
+                val difficulty = strategy.difficulty
 
                 val gameAI = aiFactory.create(
-                    gameAI = singlePlayerMode.gameAi,
+                    gameAI = strategy.gameAi,
                     difficulty = difficulty,
                     board = Board()
                 )
 
                 return SinglePlayerLocal(
-                    gameAI = gameAI, playerDetails = playerDetails
+                    gameAI = gameAI, playerDetails = gameScreenDetails.playerDetails
                 )
 
             }
 
-            is SinglePlayerMode.Remote -> {
-                return SinglePlayerRemote()
+            is LocalGamePlayStrategy.MultiPlayer -> {
+                MultiPlayerGame(
+                    playerDetails = gameScreenDetails.playerDetails
+                )
             }
         }
-
     }
 
 }

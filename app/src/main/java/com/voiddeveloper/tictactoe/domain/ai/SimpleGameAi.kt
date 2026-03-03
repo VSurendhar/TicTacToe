@@ -1,9 +1,9 @@
 package com.voiddeveloper.tictactoe.domain.ai
 
 import com.voiddeveloper.tictactoe.domain.SimpleGameBlankCell
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.PlayerType
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.PlayerType
 import kotlinx.serialization.Transient
 import kotlin.random.Random
 import kotlin.random.nextInt

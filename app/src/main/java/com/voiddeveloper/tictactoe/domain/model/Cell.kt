@@ -1,4 +1,4 @@
-package com.voiddeveloper.tictactoe.model
+package com.voiddeveloper.tictactoe.domain.model
 
 import kotlinx.serialization.Serializable
 

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.parcelize")
     kotlin("plugin.serialization")
+    id("com.google.protobuf") version "0.9.5"
 }
 
 android {
@@ -43,6 +44,19 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.21.7"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins.create("java") {
+                option("lite")
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -53,7 +67,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
-    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,6 +75,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
+    implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.8.5")
 
     implementation("io.insert-koin:koin-core:3.5.6")
@@ -71,9 +85,15 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.6")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-
     implementation(libs.androidx.navigation.compose)
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // ProtoBuf Data Store
+    implementation(libs.androidx.datastore)
+    implementation(libs.protobuf.javalite)
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation(kotlin("test"))
 
 }

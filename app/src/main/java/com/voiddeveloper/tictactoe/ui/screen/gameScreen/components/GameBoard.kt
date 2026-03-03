@@ -21,9 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.Coin
-import com.voiddeveloper.tictactoe.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Coin
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.ui.theme.winColor
 
 @Composable

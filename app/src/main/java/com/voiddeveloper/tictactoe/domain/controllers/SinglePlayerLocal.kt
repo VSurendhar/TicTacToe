@@ -1,16 +1,16 @@
 package com.voiddeveloper.tictactoe.domain.controllers
 
 import com.voiddeveloper.tictactoe.domain.ai.GameAI
-import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.Board.Companion.emptyBoard
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.Displayable
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
-import com.voiddeveloper.tictactoe.model.PlayerType
+import com.voiddeveloper.tictactoe.domain.model.Board
+import com.voiddeveloper.tictactoe.domain.model.Board.Companion.emptyBoard
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.Displayable
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.PlayerType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -24,7 +24,7 @@ class SinglePlayerLocal(
 
     private val aiThinkingDelay = 300L
     private val _gameStatus: MutableSharedFlow<LocalGameStatus> = MutableSharedFlow()
-    override val localGameStatus: SharedFlow<LocalGameStatus> = _gameStatus.asSharedFlow()
+    override val gameStatus: SharedFlow<LocalGameStatus> = _gameStatus.asSharedFlow()
     private val board = Board()
     private val gameOver: Boolean
         get() = board.isAllFilled() || board.isWin(playerDetails.players.first()) != null || board.isWin(

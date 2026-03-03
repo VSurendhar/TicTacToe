@@ -1,7 +1,7 @@
 package com.voiddeveloper.tictactoe.domain.ai
 
-import com.voiddeveloper.tictactoe.model.Cell
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.Cell
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
 
 
 interface GameAI  {

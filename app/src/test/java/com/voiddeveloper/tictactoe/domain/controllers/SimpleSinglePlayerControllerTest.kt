@@ -3,17 +3,16 @@ package com.voiddeveloper.tictactoe.domain.controllers
 
 import com.voiddeveloper.tictactoe.domain.ai.GameAI
 import com.voiddeveloper.tictactoe.domain.ai.SimpleGameAi
-import com.voiddeveloper.tictactoe.model.Board.Companion.emptyBoard
-import com.voiddeveloper.tictactoe.model.Coin
-import com.voiddeveloper.tictactoe.model.Coordinate
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
-import com.voiddeveloper.tictactoe.model.LocalGameStatus
-import com.voiddeveloper.tictactoe.model.Player
-import com.voiddeveloper.tictactoe.model.PlayerDetails
-import com.voiddeveloper.tictactoe.model.PlayerType
+import com.voiddeveloper.tictactoe.domain.model.Board.Companion.emptyBoard
+import com.voiddeveloper.tictactoe.domain.model.Coin
+import com.voiddeveloper.tictactoe.domain.model.Coordinate
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.LocalGameStatus
+import com.voiddeveloper.tictactoe.domain.model.Player
+import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
+import com.voiddeveloper.tictactoe.domain.model.PlayerType
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -30,8 +29,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SimpleSinglePlayerControllerTest {
 
-    private val player1 = Player(coin = Coin.X, type = PlayerType.HUMAN ,  playerName = "daf")
-    private val player2 = Player(coin = Coin.O, type = PlayerType.COMPUTER ,  playerName = "adfa")
+    private val player1 = Player(coin = Coin.X, type = PlayerType.HUMAN, playerName = "daf")
+    private val player2 = Player(coin = Coin.O, type = PlayerType.COMPUTER, playerName = "adfa")
 
     private val testDispatcher = StandardTestDispatcher()
 
@@ -47,8 +46,7 @@ class SimpleSinglePlayerControllerTest {
         )
         simpleSinglePlayerGameController = SinglePlayerLocal(
             gameAI = simpleGameAi,
-            playerDetails = PlayerDetails(listOf(player1, player2)),
-            coroutineScope = CoroutineScope(testDispatcher)
+            playerDetails = PlayerDetails(listOf(player1, player2))
         )
     }
 
@@ -64,7 +62,7 @@ class SimpleSinglePlayerControllerTest {
         val emissions: MutableList<LocalGameStatus> = mutableListOf()
 
         val job = launch {
-            simpleSinglePlayerGameController.localGameStatus.collect {
+            simpleSinglePlayerGameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -91,7 +89,7 @@ class SimpleSinglePlayerControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            simpleSinglePlayerGameController.localGameStatus.collect {
+            simpleSinglePlayerGameController.gameStatus.collect {
                 emissions.add(it)
             }
         }
@@ -125,7 +123,7 @@ class SimpleSinglePlayerControllerTest {
         val emissions = mutableListOf<LocalGameStatus>()
 
         val job = launch {
-            simpleSinglePlayerGameController.localGameStatus.collect {
+            simpleSinglePlayerGameController.gameStatus.collect {
                 emissions.add(it)
             }
         }

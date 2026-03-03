@@ -2,8 +2,8 @@ package com.voiddeveloper.tictactoe.domain.factory
 
 import com.voiddeveloper.tictactoe.domain.ai.GameAI
 import com.voiddeveloper.tictactoe.domain.ai.SimpleGameAi
-import com.voiddeveloper.tictactoe.model.Board
-import com.voiddeveloper.tictactoe.model.GamePlayDifficulty
+import com.voiddeveloper.tictactoe.domain.model.Board
+import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
 
 interface GameAiFactory {
     fun create(
