@@ -61,7 +61,9 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand) {
             }, enableRefresh = state.players.size == 2)
 
             PlayerIndicator(
-                currentPlayer = state.currentPlayer, playerList = state.players
+                currentPlayer = state.currentPlayer, 
+                playerList = state.players,
+                timerProgress = state.timerProgress
             )
 
             val status = state.status

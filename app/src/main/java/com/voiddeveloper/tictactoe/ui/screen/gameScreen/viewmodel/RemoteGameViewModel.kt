@@ -18,6 +18,8 @@ import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.domain.model.Player
 import com.voiddeveloper.tictactoe.domain.model.PlayerType
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -39,6 +41,8 @@ class RemoteGameViewModel(
         explicitNulls = false
         ignoreUnknownKeys = true
     }
+
+    private var timeoutJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -109,6 +113,9 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.Turn -> {
+                        val isMyTurn = response.message.playerCoin.getCoin() == 
+                            _uiState.value.players.firstOrNull { it.playerName == "You" }?.coin
+                        
                         _uiState.update {
                             it.copy(
                                 currentPlayer = it.players.firstOrNull { player ->
@@ -118,9 +125,16 @@ class RemoteGameViewModel(
                                 board = response.message.board.toCellBoard(it.players.first { it.playerName == "You" }.coin),
                             )
                         }
+
+                        if (isMyTurn) {
+                            startTimeoutTimer()
+                        } else {
+                            stopTimeoutTimer()
+                        }
                     }
 
                     is RemoteGameStatus.Win -> {
+                        stopTimeoutTimer()
                         val boardSnapShot =
                             response.message.board.toCellBoard(_uiState.value.players.first { it.playerName == "You" }.coin)
                         _uiState.update {
@@ -135,6 +149,7 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.Tie -> {
+                        stopTimeoutTimer()
                         _uiState.update {
                             it.copy(
                                 status = it.status.plus(response.message),
@@ -148,6 +163,47 @@ class RemoteGameViewModel(
                     else -> {}
                 }
             }
+        }
+    }
+
+    private fun startTimeoutTimer() {
+        stopTimeoutTimer()
+        timeoutJob = viewModelScope.launch {
+            val totalTime = 25000L
+            val interval = 100L
+            var remainingTime = totalTime
+            
+            while (remainingTime > 0) {
+                _uiState.update { it.copy(timerProgress = remainingTime.toFloat() / totalTime) }
+                delay(interval)
+                remainingTime -= interval
+            }
+            _uiState.update { it.copy(timerProgress = 0f) }
+            makeRandomMove()
+        }
+    }
+
+    private fun stopTimeoutTimer() {
+        timeoutJob?.cancel()
+        timeoutJob = null
+        _uiState.update { it.copy(timerProgress = 0f) }
+    }
+
+    private fun makeRandomMove() {
+        val currentBoard = _uiState.value.board
+        val emptyCells = mutableListOf<Coordinate>()
+        
+        currentBoard.forEachIndexed { rowIndex, row ->
+            row.forEachIndexed { colIndex, cell ->
+                if (cell.player?.coin == null) {
+                    emptyCells.add(Coordinate(rowIndex, colIndex))
+                }
+            }
+        }
+
+        if (emptyCells.isNotEmpty()) {
+            val randomMove = emptyCells.random()
+            setMove(randomMove)
         }
     }
 
@@ -183,6 +239,7 @@ class RemoteGameViewModel(
     }
 
     fun setMove(coordinate: Coordinate) {
+        stopTimeoutTimer()
         val move = ClientMessage(
             move = GridPosition(
                 row = coordinate.row,
@@ -193,10 +250,16 @@ class RemoteGameViewModel(
     }
 
     fun onRefreshBoard() {
+        stopTimeoutTimer()
         val move = ClientMessage(
             clearGame = true
         )
         repo.sendMessage(json.encodeToString(move))
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopTimeoutTimer()
     }
 
 }
@@ -211,4 +274,5 @@ data class RemoteGameUiState(
     val roomId: String = "----",
     val isWin: Boolean = false,
     val winningCells: List<Cell> = emptyList(),
+    val timerProgress: Float = 0f,
 )
