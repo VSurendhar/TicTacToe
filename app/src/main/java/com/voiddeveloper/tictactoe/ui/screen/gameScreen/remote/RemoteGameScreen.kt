@@ -8,6 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -51,7 +56,9 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            RoomIdBanner(roomId = state.roomId)
+            TopBar(roomId = state.roomId, onRefreshClick = {
+                viewModel.onRefreshBoard()
+            }, enableRefresh = state.players.size == 2)
 
             PlayerIndicator(
                 currentPlayer = state.currentPlayer, playerList = state.players
@@ -73,7 +80,7 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand) {
             GameBoard(
                 modifier = Modifier.fillMaxSize(),
                 onCellClick = { coordinate ->
-                    if (state.currentPlayer?.playerName == "You"){
+                    if (state.currentPlayer?.playerName == "You") {
                         viewModel.setMove(Coordinate(row = coordinate.row, col = coordinate.col))
                     }
                 },
@@ -108,9 +115,11 @@ fun InformationSection(list: List<String>) {
 }
 
 @Composable
-fun RoomIdBanner(
+fun TopBar(
     roomId: String,
     modifier: Modifier = Modifier,
+    enableRefresh: Boolean,
+    onRefreshClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -121,7 +130,6 @@ fun RoomIdBanner(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -130,12 +138,21 @@ fun RoomIdBanner(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Text(
                 text = roomId,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            IconButton(onClick = onRefreshClick, enabled = enableRefresh) {
+                Icon(Icons.Default.Refresh, contentDescription = "Replay")
+            }
+
         }
     }
 }

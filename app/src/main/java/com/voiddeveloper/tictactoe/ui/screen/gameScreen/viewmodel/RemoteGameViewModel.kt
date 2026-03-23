@@ -192,6 +192,13 @@ class RemoteGameViewModel(
         repo.sendMessage(json.encodeToString(move))
     }
 
+    fun onRefreshBoard() {
+        val move = ClientMessage(
+            clearGame = true
+        )
+        repo.sendMessage(json.encodeToString(move))
+    }
+
 }
 
 data class RemoteGameUiState(
