@@ -2,6 +2,7 @@ package com.voiddeveloper.tictactoe.data
 
 import android.util.Log
 import com.voiddeveloper.tictactoe.data.model.GameServerResponse
+import com.voiddeveloper.tictactoe.data.model.RemoteGameStatus
 import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -88,12 +89,12 @@ class RemoteRepository() {
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     Log.w(TAG, "WebSocket Closed: $code / $reason")
-                    isClosed = true
+                    trySend(GameServerResponse(message = RemoteGameStatus.GameDisConnected))
                 }
 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     Log.e(TAG, "WebSocket Error: ${t.message}", t)
-                    isClosed = true
+                    trySend(GameServerResponse(message = RemoteGameStatus.GameDisConnected))
                 }
             }
 

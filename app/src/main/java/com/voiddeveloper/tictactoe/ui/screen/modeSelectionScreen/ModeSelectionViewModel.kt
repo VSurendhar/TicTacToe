@@ -1,5 +1,6 @@
 package com.voiddeveloper.tictactoe.ui.screen.modeSelectionScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +93,7 @@ class ModeSelectionViewModel : ViewModel() {
 
         try {
             client.newCall(request).execute().use { response ->
+                Log.i("Surendhar TAG", "makePingPong: $response")
                 if (response.isSuccessful) {
                     val body = response.body?.string() ?: ""
                     body.contains("\"status\": \"alive\"") || body.contains("alive")

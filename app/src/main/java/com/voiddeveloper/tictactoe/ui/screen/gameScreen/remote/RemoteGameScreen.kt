@@ -66,6 +66,9 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand, onBackClick: () -> Un
                 is RemoteGameAction.ShortToast -> {
                     Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
                 }
+                RemoteGameAction.GoBack -> {
+                    onBackClick()
+                }
             }
         }
     }

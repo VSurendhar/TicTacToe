@@ -127,11 +127,21 @@ class RemoteGameViewModel(
                     is RemoteGameStatus.PlayerDisconnected -> {
                         Log.i(TAG, "Player disconnected: ${response.message.assignedChar}")
                         val disconnectedCoin = response.message.assignedChar.getCoin()
-                        
+
                         _uiState.update { state ->
                             state.copy(
                                 players = state.players.filter { it.coin != disconnectedCoin },
                                 status = state.status.plus(response.message)
+                            )
+                        }
+                    }
+
+                    is RemoteGameStatus.GameDisConnected -> {
+                        Log.i(TAG, "Game disconnected")
+                        _actions.emit(RemoteGameAction.ShortToast("Game Disconnected"))
+                        _uiState.update {
+                            it.copy(
+                                status = it.status.plus(response.message),
                             )
                         }
                     }
@@ -342,7 +352,7 @@ class RemoteGameViewModel(
         stopTimeoutTimer()
     }
 
-    fun tryReconnecting(){
+    fun tryReconnecting() {
 
     }
 
@@ -365,4 +375,5 @@ sealed interface RemoteGameAction {
     object ShowReconnectionDialog : RemoteGameAction
     object Connected : RemoteGameAction
     data class ShortToast(val message: String) : RemoteGameAction
+    object GoBack : RemoteGameAction
 }
