@@ -57,6 +57,11 @@ protobuf {
     }
 }
 
+tasks.register<Exec>("adbReverse") {
+    commandLine("adb", "reverse", "tcp:8081", "tcp:8081")
+    isIgnoreExitValue = true
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -46,7 +46,10 @@ fun AppNavHost(
             val remoteGameCommandStr = it.arguments?.getString("remoteGameCommand") ?: return@composable
             val remoteGameCommand = Json.decodeFromString<RemoteGameCommand>(remoteGameCommandStr)
             RemoteGameScreen(
-                remoteGameCommand = remoteGameCommand
+                remoteGameCommand = remoteGameCommand,
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
 

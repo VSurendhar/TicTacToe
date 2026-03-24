@@ -1,5 +1,6 @@
 package com.voiddeveloper.tictactoe.ui.screen.gameScreen.remote
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,10 +19,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,24 +35,58 @@ import androidx.compose.ui.unit.dp
 import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.domain.model.Displayable
 import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
+import com.voiddeveloper.tictactoe.ui.dialog.ReconnectingDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.PlayerIndicator
+import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.RemoteGameAction
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.RemoteGameViewModel
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand) {
+fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand, onBackClick: () -> Unit) {
 
     val viewModel: RemoteGameViewModel = koinViewModel(
         parameters = { parametersOf(remoteGameCommand) })
 
     val state by viewModel.uiState.collectAsState()
+    var showReconnectionLogic by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.actions.collect { action ->
+            when (action) {
+                RemoteGameAction.ShowReconnectionDialog -> {
+                    showReconnectionLogic = true
+                }
+                RemoteGameAction.Connected -> {
+                    showReconnectionLogic = false
+                }
+                is RemoteGameAction.ShortToast -> {
+                    Toast.makeText(context, action.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
+
+        if (showReconnectionLogic) {
+            ReconnectingDialog(
+                onDismiss = { isPop ->
+                    if (isPop) {
+                        onBackClick()
+                    }
+                    showReconnectionLogic = false
+                },
+                onReconnect = {
+                    viewModel.tryReconnecting()
+                }
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -61,7 +101,7 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand) {
             }, enableRefresh = state.players.size == 2)
 
             PlayerIndicator(
-                currentPlayer = state.currentPlayer, 
+                currentPlayer = state.currentPlayer,
                 playerList = state.players,
                 timerProgress = state.timerProgress
             )
@@ -163,7 +203,7 @@ fun TopBar(
 @Composable
 fun PreviewRemoteGameScreen() {
     TicTacToeTheme {
-        RemoteGameScreen(remoteGameCommand = RemoteGameCommand.CreateRoom)
+        RemoteGameScreen(remoteGameCommand = RemoteGameCommand.CreateRoom("",""), {})
     }
 }
 

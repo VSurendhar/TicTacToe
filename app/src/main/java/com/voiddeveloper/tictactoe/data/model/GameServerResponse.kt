@@ -31,9 +31,9 @@ sealed interface RemoteGameStatus : GameStatus {
 
     @Serializable
     @SerialName("PLAYER_DISCONNECTED")
-    object PlayerDisconnected : RemoteGameStatus, Displayable {
+    class PlayerDisconnected(val assignedChar: Char?) : RemoteGameStatus, Displayable {
         override fun display(): String {
-            return "Player has disconnected"
+            return "Player ${assignedChar} has disconnected"
         }
 
         override fun toString(): String {

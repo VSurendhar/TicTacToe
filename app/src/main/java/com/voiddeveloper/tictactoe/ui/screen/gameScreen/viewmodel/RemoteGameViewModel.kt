@@ -1,5 +1,6 @@
 package com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.voiddeveloper.tictactoe.data.RemoteRepository
@@ -18,17 +19,23 @@ import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.domain.model.GamePlayDifficulty
 import com.voiddeveloper.tictactoe.domain.model.Player
 import com.voiddeveloper.tictactoe.domain.model.PlayerType
+import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+private const val TAG = "RemoteGameViewModel"
+
 class RemoteGameViewModel(
     private val repo: RemoteRepository,
+    private val remoteGameCommand: RemoteGameCommand,
     val gameDetailsProtoDataStoreManager: GameDetailsProtoDataStoreManager,
 ) : ViewModel() {
 
@@ -36,6 +43,11 @@ class RemoteGameViewModel(
         RemoteGameUiState()
     )
     val uiState: StateFlow<RemoteGameUiState> get() = _uiState
+    var userId: String? = null
+
+    private val _actions: MutableSharedFlow<RemoteGameAction> = MutableSharedFlow()
+
+    val actions: SharedFlow<RemoteGameAction> = _actions
 
     val json = Json {
         explicitNulls = false
@@ -45,8 +57,13 @@ class RemoteGameViewModel(
     private var timeoutJob: Job? = null
 
     init {
+        repo.init(remoteGameCommand)
+    }
+
+    init {
         viewModelScope.launch {
             repo.serverResponseFlow.collect { response ->
+                Log.d(TAG, "Server response collected: ${response.message}")
                 when (response.message) {
 
                     is RemoteGameStatus.RoomCreated -> {
@@ -59,9 +76,13 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.YourConnected -> {
-
+                        Log.i(
+                            TAG,
+                            "You are connected: userId=${response.userId}, roomId=${response.roomId}"
+                        )
                         val userId = response.userId ?: return@collect
                         val roomId = response.roomId ?: return@collect
+                        this@RemoteGameViewModel.userId = userId
                         val assignedChar = response.assignedChar ?: return@collect
                         saveAssignedChar(assignedChar)
 
@@ -84,7 +105,7 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.PlayerConnected -> {
-
+                        Log.i(TAG, "Opponent connected")
                         val assignedChar = response.assignedChar ?: return@collect
 
                         _uiState.update {
@@ -103,7 +124,20 @@ class RemoteGameViewModel(
 
                     }
 
+                    is RemoteGameStatus.PlayerDisconnected -> {
+                        Log.i(TAG, "Player disconnected: ${response.message.assignedChar}")
+                        val disconnectedCoin = response.message.assignedChar.getCoin()
+                        
+                        _uiState.update { state ->
+                            state.copy(
+                                players = state.players.filter { it.coin != disconnectedCoin },
+                                status = state.status.plus(response.message)
+                            )
+                        }
+                    }
+
                     is RemoteGameStatus.GameStarted -> {
+                        Log.i(TAG, "Game started")
                         _uiState.update {
                             it.copy(
                                 status = it.status.plus(response.message),
@@ -113,9 +147,13 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.Turn -> {
-                        val isMyTurn = response.message.playerCoin.getCoin() == 
-                            _uiState.value.players.firstOrNull { it.playerName == "You" }?.coin
-                        
+                        val isMyTurn = response.message.playerCoin.getCoin() ==
+                                _uiState.value.players.firstOrNull { it.playerName == "You" }?.coin
+                        Log.d(
+                            TAG,
+                            "Turn: player=${response.message.playerCoin}, isMyTurn=$isMyTurn"
+                        )
+
                         _uiState.update {
                             it.copy(
                                 currentPlayer = it.players.firstOrNull { player ->
@@ -134,6 +172,7 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.Win -> {
+                        Log.i(TAG, "Game won by: ${response.message.coin}")
                         stopTimeoutTimer()
                         val boardSnapShot =
                             response.message.board.toCellBoard(_uiState.value.players.first { it.playerName == "You" }.coin)
@@ -149,6 +188,7 @@ class RemoteGameViewModel(
                     }
 
                     is RemoteGameStatus.Tie -> {
+                        Log.i(TAG, "Game tied")
                         stopTimeoutTimer()
                         _uiState.update {
                             it.copy(
@@ -160,39 +200,65 @@ class RemoteGameViewModel(
                         }
                     }
 
-                    else -> {}
+                    is RemoteGameStatus.RoomFull -> {
+                        _actions.emit(RemoteGameAction.ShortToast("Room is full"))
+                    }
+
+                    is RemoteGameStatus.InvalidAction -> {
+                        _actions.emit(RemoteGameAction.ShortToast("Invalid action"))
+                    }
+
+                    is RemoteGameStatus.InvalidCredentials -> {
+                        _actions.emit(RemoteGameAction.ShortToast(response.message.message))
+                    }
+
+                    is RemoteGameStatus.AlreadyFilled -> {
+                        _actions.emit(RemoteGameAction.ShortToast("Cell already occupied"))
+                    }
+
+                    is RemoteGameStatus.InvalidMove -> {
+                        _actions.emit(RemoteGameAction.ShortToast("Invalid move"))
+                    }
+
+                    else -> {
+                        Log.w(TAG, "Received unknown message: ${response.message}")
+                    }
                 }
             }
         }
     }
 
     private fun startTimeoutTimer() {
+        Log.d(TAG, "Starting timeout timer")
         stopTimeoutTimer()
         timeoutJob = viewModelScope.launch {
             val totalTime = 25000L
             val interval = 100L
             var remainingTime = totalTime
-            
+
             while (remainingTime > 0) {
                 _uiState.update { it.copy(timerProgress = remainingTime.toFloat() / totalTime) }
                 delay(interval)
                 remainingTime -= interval
             }
+            Log.d(TAG, "Timeout timer reached zero")
             _uiState.update { it.copy(timerProgress = 0f) }
             makeRandomMove()
         }
     }
 
     private fun stopTimeoutTimer() {
+        if (timeoutJob != null) Log.d(TAG, "Stopping timeout timer")
         timeoutJob?.cancel()
         timeoutJob = null
         _uiState.update { it.copy(timerProgress = 0f) }
     }
 
     private fun makeRandomMove() {
+        Log.d(TAG, "Making a random move")
         val currentBoard = _uiState.value.board
         val emptyCells = mutableListOf<Coordinate>()
-        
+
         currentBoard.forEachIndexed { rowIndex, row ->
             row.forEachIndexed { colIndex, cell ->
                 if (cell.player?.coin == null) {
@@ -203,7 +269,10 @@ class RemoteGameViewModel(
 
         if (emptyCells.isNotEmpty()) {
             val randomMove = emptyCells.random()
+            Log.d(TAG, "Random move selected: $randomMove")
             setMove(randomMove)
+        } else {
+            Log.e(TAG, "No empty cells found for random move!")
         }
     }
 
@@ -239,17 +308,27 @@ class RemoteGameViewModel(
     }
 
     fun setMove(coordinate: Coordinate) {
-        stopTimeoutTimer()
-        val move = ClientMessage(
-            move = GridPosition(
-                row = coordinate.row,
-                col = coordinate.col
-            ),
-        )
-        repo.sendMessage(json.encodeToString(move))
+        if (repo.isClosed) {
+            Log.w(TAG, "Attempted to set move while repository is closed")
+            viewModelScope.launch {
+                Log.d(TAG, "Emitting ShowReconnectionDialog action")
+                _actions.emit(RemoteGameAction.ShowReconnectionDialog)
+            }
+        } else {
+            Log.d(TAG, "Setting move at $coordinate")
+            stopTimeoutTimer()
+            val move = ClientMessage(
+                move = GridPosition(
+                    row = coordinate.row,
+                    col = coordinate.col
+                ),
+            )
+            repo.sendMessage(json.encodeToString(move))
+        }
     }
 
     fun onRefreshBoard() {
+        Log.d(TAG, "Refreshing board")
         stopTimeoutTimer()
         val move = ClientMessage(
             clearGame = true
@@ -259,7 +338,12 @@ class RemoteGameViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        Log.d(TAG, "ViewModel cleared, stopping timer")
         stopTimeoutTimer()
+    }
+
+    fun tryReconnecting(){
+
     }
 
 }
@@ -276,3 +360,9 @@ data class RemoteGameUiState(
     val winningCells: List<Cell> = emptyList(),
     val timerProgress: Float = 0f,
 )
+
+sealed interface RemoteGameAction {
+    object ShowReconnectionDialog : RemoteGameAction
+    object Connected : RemoteGameAction
+    data class ShortToast(val message: String) : RemoteGameAction
+}

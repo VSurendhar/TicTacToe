@@ -9,9 +9,9 @@ import com.voiddeveloper.tictactoe.domain.factory.GameControllerFactory
 import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.LocalGameViewModel
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.viewmodel.RemoteGameViewModel
+import com.voiddeveloper.tictactoe.ui.screen.modeSelectionScreen.ModeSelectionViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 
 val appModule = module {
@@ -38,7 +38,11 @@ val appModule = module {
     }
 
     viewModel { (remoteGameCommand: RemoteGameCommand) ->
-        RemoteGameViewModel(RemoteRepository(remoteGameCommand), get())
+        RemoteGameViewModel(RemoteRepository(), remoteGameCommand, get())
+    }
+
+    viewModel {
+        ModeSelectionViewModel()
     }
 
 }
