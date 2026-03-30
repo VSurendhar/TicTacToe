@@ -25,7 +25,7 @@ import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
 import com.voiddeveloper.tictactoe.ui.dialog.ConnectingDialog
 import com.voiddeveloper.tictactoe.ui.dialog.LocalGameModeDialog
 import com.voiddeveloper.tictactoe.ui.dialog.OnlineGameModeDialog
-import com.voiddeveloper.tictactoe.ui.dialog.ServerIpDialog
+import com.voiddeveloper.tictactoe.ui.dialog.ServerUrlDialog
 import com.voiddeveloper.tictactoe.ui.theme.TicTacToeTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -85,14 +85,14 @@ fun ModeSelectionScreen(
         )
     }
 
-    if (state.showServerIpDialog) {
-        ServerIpDialog(
-            onConfirm = { ip, port ->
-                viewModel.onConfirmServerIp(ip, port)
+    if (state.showServerUrlDialog) {
+        ServerUrlDialog(
+            onConfirm = { url ->
+                viewModel.onConfirmServerUrl(url)
             },
-            onDismiss = { viewModel.onDismissServerIpDialog() },
-            initialIp = state.serverIp,
-            initialPort = state.serverPort
+            onDismiss = { viewModel.onDismissServerUrlDialog() },
+            initialUrl = state.serverUrl,
+            error = state.connectionError
         )
     }
 
@@ -104,15 +104,14 @@ fun ModeSelectionScreen(
         OnlineGameModeDialog(
             onCreateRoom = {
                 viewModel.onDismissOnlineModeDialog()
-                navigateToRemoteGame(RemoteGameCommand.CreateRoom(state.serverIp, state.serverPort))
+                navigateToRemoteGame(RemoteGameCommand.CreateRoom(state.serverUrl))
             },
             onJoinRoom = { roomCode ->
                 viewModel.onDismissOnlineModeDialog()
                 navigateToRemoteGame(
                     RemoteGameCommand.JoinRoom(
                         roomId = roomCode,
-                        serverIp = state.serverIp,
-                        serverPort = state.serverPort
+                        serverUrl = state.serverUrl
                     )
                 )
             },

@@ -206,7 +206,7 @@ fun TopBar(
 @Composable
 fun PreviewRemoteGameScreen() {
     TicTacToeTheme {
-        RemoteGameScreen(remoteGameCommand = RemoteGameCommand.CreateRoom("",""), {})
+        RemoteGameScreen(remoteGameCommand = RemoteGameCommand.CreateRoom(""), {})
     }
 }
 

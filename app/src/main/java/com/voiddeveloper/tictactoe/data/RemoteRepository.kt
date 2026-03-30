@@ -41,22 +41,29 @@ class RemoteRepository() {
     fun init(remoteGameCommand: RemoteGameCommand) {
         Log.d(TAG, "Initializing with command: $remoteGameCommand")
 
+        val rawUrl = when (remoteGameCommand) {
+            is RemoteGameCommand.JoinRoom -> remoteGameCommand.serverUrl
+            is RemoteGameCommand.CreateRoom -> remoteGameCommand.serverUrl
+        }.removeSuffix("/")
+
+        val wsUrl = if (rawUrl.startsWith("http://")) {
+            rawUrl.replaceFirst("http://", "ws://")
+        } else if (rawUrl.startsWith("https://")) {
+            rawUrl.replaceFirst("https://", "wss://")
+        } else {
+            rawUrl
+        }
+
         request = when (remoteGameCommand) {
             is RemoteGameCommand.JoinRoom -> {
                 Request.Builder()
-                    .url("ws://${remoteGameCommand.serverIp}:${remoteGameCommand.serverPort}/ticTacToe?action=join_room&roomId=${remoteGameCommand.roomId}")
+                    .url("$wsUrl/ticTacToe?action=join_room&roomId=${remoteGameCommand.roomId}")
                     .build()
             }
 
             is RemoteGameCommand.CreateRoom -> {
                 Request.Builder()
-                    .url("ws://${remoteGameCommand.serverIp}:${remoteGameCommand.serverPort}/ticTacToe?action=create_room")
-                    .build()
-            }
-
-            is RemoteGameCommand.ReconnectionAttempt -> {
-                Request.Builder()
-                    .url("ws://${remoteGameCommand.serverIp}:${remoteGameCommand.serverPort}/ticTacToe?action=reconnection_attempt?userId=${remoteGameCommand.userId}&roomId=${remoteGameCommand.roomId}&assignedChar=${remoteGameCommand.assignedChar}")
+                    .url("$wsUrl/ticTacToe?action=create_room")
                     .build()
             }
 

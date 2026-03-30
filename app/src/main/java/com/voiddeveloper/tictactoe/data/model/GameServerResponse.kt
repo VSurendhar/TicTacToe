@@ -30,7 +30,7 @@ sealed interface RemoteGameStatus : GameStatus {
     }
 
     @Serializable
-    @SerialName("PLAYER_DISCONNECTED")
+    @SerialName("GAME_CONNECTED")
     object GameDisConnected : RemoteGameStatus , Displayable{
         override fun display(): String {
             return "Game Disconnected"

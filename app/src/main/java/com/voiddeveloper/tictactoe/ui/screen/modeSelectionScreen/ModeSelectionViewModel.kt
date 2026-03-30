@@ -16,12 +16,11 @@ import java.util.concurrent.TimeUnit
 
 data class ModeSelectionUiState(
     val showLocalDialog: Boolean = false,
-    val showServerIpDialog: Boolean = false,
+    val showServerUrlDialog: Boolean = false,
     val showConnectingDialog: Boolean = false,
     val showOnlineModeDialog: Boolean = false,
     val connectionError: String? = null,
-    val serverIp: String = "",
-    val serverPort: String = "8081"
+    val serverUrl: String = "https://grovellingly-uninvocative-nguyet.ngrok-free.dev/"
 )
 
 class ModeSelectionViewModel : ViewModel() {
@@ -34,33 +33,32 @@ class ModeSelectionViewModel : ViewModel() {
     }
 
     fun onRemoteClick() {
-        _uiState.update { it.copy(showServerIpDialog = true) }
+        _uiState.update { it.copy(showServerUrlDialog = true) }
     }
 
     fun onDismissLocalDialog() {
         _uiState.update { it.copy(showLocalDialog = false) }
     }
 
-    fun onDismissServerIpDialog() {
-        _uiState.update { it.copy(showServerIpDialog = false) }
+    fun onDismissServerUrlDialog() {
+        _uiState.update { it.copy(showServerUrlDialog = false) }
     }
 
     fun onDismissOnlineModeDialog() {
         _uiState.update { it.copy(showOnlineModeDialog = false) }
     }
 
-    fun onConfirmServerIp(ip: String, port: String) {
+    fun onConfirmServerUrl(url: String) {
         _uiState.update {
             it.copy(
-                showServerIpDialog = false,
+                showServerUrlDialog = false,
                 showConnectingDialog = true,
-                serverIp = ip,
-                serverPort = port,
+                serverUrl = url,
                 connectionError = null
             )
         }
         viewModelScope.launch {
-            val success = makePingPong(ip, port)
+            val success = makePingPong(url)
             if (success) {
                 _uiState.update {
                     it.copy(
@@ -72,7 +70,7 @@ class ModeSelectionViewModel : ViewModel() {
                 _uiState.update {
                     it.copy(
                         showConnectingDialog = false,
-                        showServerIpDialog = true,
+                        showServerUrlDialog = true,
                         connectionError = "Could not connect to server"
                     )
                 }
@@ -80,15 +78,14 @@ class ModeSelectionViewModel : ViewModel() {
         }
     }
 
-    private suspend fun makePingPong(ip: String, port: String): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun makePingPong(url: String): Boolean = withContext(Dispatchers.IO) {
         val client = OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
             .readTimeout(5, TimeUnit.SECONDS)
             .build()
 
-        // Using HTTP GET instead of WebSocket for the health check
         val request = Request.Builder()
-            .url("http://$ip:$port")
+            .url(url)
             .build()
 
         try {
@@ -102,6 +99,7 @@ class ModeSelectionViewModel : ViewModel() {
                 }
             }
         } catch (e: Exception) {
+            Log.e("Surendhar TAG", "makePingPong Error: ${e.message}")
             false
         }
     }
