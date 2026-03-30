@@ -140,7 +140,7 @@ class RemoteGameViewModel(
                         Log.i(TAG, "Game started")
                         _uiState.update {
                             it.copy(
-                                status = it.status.plus(response.message),
+                                status = it.status.plus(RemoteGameStatus.GameStarted),
                                 isWin = false,
                             )
                         }
@@ -160,7 +160,7 @@ class RemoteGameViewModel(
                                     player.coin == response.message.playerCoin.getCoin()
                                 },
                                 isWin = false,
-                                board = response.message.board.toCellBoard(it.players.first { it.playerName == "You" }.coin),
+                                board = response.message.board.toCellBoard(it.players.firstOrNull { it.playerName == "You" }?.coin),
                             )
                         }
 
@@ -174,28 +174,76 @@ class RemoteGameViewModel(
                     is RemoteGameStatus.Win -> {
                         Log.i(TAG, "Game won by: ${response.message.coin}")
                         stopTimeoutTimer()
+                        val isMyWin = response.message.coin.getCoin() ==
+                                _uiState.value.players.firstOrNull { it.playerName == "You" }?.coin
                         val boardSnapShot =
-                            response.message.board.toCellBoard(_uiState.value.players.first { it.playerName == "You" }.coin)
-                        _uiState.update {
-                            it.copy(
-                                status = it.status.plus(response.message),
-                                board = boardSnapShot,
-                                currentPlayer = null,
-                                isWin = true,
-                                winningCells = boardSnapShot.getWinningCells(response.message.coin.getCoin())
-                            )
+                            response.message.board.toCellBoard(_uiState.value.players.firstOrNull { it.playerName == "You" }?.coin)
+
+                        if (isMyWin) {
+                            if (response.message.isForced) {
+                                _uiState.update {
+                                    it.copy(
+                                        showGameEndDialog = true,
+                                        gameEndDialogTitle = "Player Left the Room",
+                                        gameEndDialogMessage = "You won the game!"
+                                    )
+                                }
+                            } else {
+                                viewModelScope.launch {
+                                    _uiState.update {
+                                        it.copy(
+                                            board = boardSnapShot,
+                                            currentPlayer = null,
+                                            winningCells = boardSnapShot.getWinningCells(response.message.coin.getCoin()),
+                                        )
+                                    }
+                                    delay(600)
+                                    _uiState.update {
+                                        it.copy(
+                                            showGameEndDialog = true,
+                                            gameEndDialogTitle = "Congratulations!",
+                                            gameEndDialogMessage = "Congratulations you are the winner",
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            viewModelScope.launch {
+                                _uiState.update {
+                                    it.copy(
+                                        status = it.status.plus(response.message),
+                                        board = boardSnapShot,
+                                        currentPlayer = null,
+                                        isWin = true,
+                                        winningCells = boardSnapShot.getWinningCells(response.message.coin.getCoin()),
+                                    )
+                                }
+                                delay(600)
+                                _uiState.update {
+                                    it.copy(
+                                        showGameEndDialog = true,
+                                        gameEndDialogTitle = "Defeat",
+                                        gameEndDialogMessage = "You lose"
+                                    )
+                                }
+                            }
                         }
                     }
 
                     is RemoteGameStatus.Tie -> {
                         Log.i(TAG, "Game tied")
                         stopTimeoutTimer()
+                        val boardSnapShot =
+                            response.message.board.toCellBoard(_uiState.value.players.firstOrNull { it.playerName == "You" }?.coin)
                         _uiState.update {
                             it.copy(
                                 status = it.status.plus(response.message),
-                                board = response.message.board.toCellBoard(it.players.first { it.playerName == "You" }.coin),
+                                board = boardSnapShot,
                                 currentPlayer = null,
                                 isWin = false,
+                                showGameEndDialog = true,
+                                gameEndDialogTitle = "Draw",
+                                gameEndDialogMessage = "Game has drawn"
                             )
                         }
                     }
@@ -335,6 +383,13 @@ class RemoteGameViewModel(
         }
     }
 
+    fun onGameEndOkClick() {
+        _uiState.update { it.copy(showGameEndDialog = false) }
+        viewModelScope.launch {
+            _actions.emit(RemoteGameAction.GoBack)
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "ViewModel cleared, stopping timer")
@@ -352,12 +407,13 @@ data class RemoteGameUiState(
     val players: List<Player> = emptyList(),
     val currentPlayer: Player? = null,
     val status: List<RemoteGameStatus> = listOf(RemoteGameStatus.UnSpecified),
-    val showDifficulty: Boolean = false,
-    val gamePlayDifficulty: GamePlayDifficulty = GamePlayDifficulty.DEFAULT,
     val roomId: String = "----",
     val isWin: Boolean = false,
     val winningCells: List<Cell> = emptyList(),
     val timerProgress: Float = 0f,
+    val showGameEndDialog: Boolean = false,
+    val gameEndDialogTitle: String = "",
+    val gameEndDialogMessage: String = "",
 )
 
 sealed interface RemoteGameAction {

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.voiddeveloper.tictactoe.domain.model.Coordinate
 import com.voiddeveloper.tictactoe.domain.model.Displayable
 import com.voiddeveloper.tictactoe.domain.model.RemoteGameCommand
+import com.voiddeveloper.tictactoe.ui.dialog.GameEndDialog
 import com.voiddeveloper.tictactoe.ui.dialog.ReconnectingDialog
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.GameBoard
 import com.voiddeveloper.tictactoe.ui.screen.gameScreen.components.PlayerIndicator
@@ -83,6 +84,16 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand, onBackClick: () -> Un
                 },
                 onReconnect = {
                     viewModel.tryReconnecting()
+                }
+            )
+        }
+
+        if (state.showGameEndDialog) {
+            GameEndDialog(
+                title = state.gameEndDialogTitle,
+                message = state.gameEndDialogMessage,
+                onOkClick = {
+                    viewModel.onGameEndOkClick()
                 }
             )
         }
