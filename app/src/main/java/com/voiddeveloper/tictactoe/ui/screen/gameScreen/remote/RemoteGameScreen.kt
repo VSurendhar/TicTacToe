@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -99,9 +95,7 @@ fun RemoteGameScreen(remoteGameCommand: RemoteGameCommand, onBackClick: () -> Un
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            TopBar(roomId = state.roomId, onRefreshClick = {
-                viewModel.onRefreshBoard()
-            }, enableRefresh = state.players.size == 2)
+            TopBar(roomId = state.roomId)
 
             PlayerIndicator(
                 currentPlayer = state.currentPlayer,
@@ -163,8 +157,6 @@ fun InformationSection(list: List<String>) {
 fun TopBar(
     roomId: String,
     modifier: Modifier = Modifier,
-    enableRefresh: Boolean,
-    onRefreshClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -191,12 +183,6 @@ fun TopBar(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            IconButton(onClick = onRefreshClick, enabled = enableRefresh) {
-                Icon(Icons.Default.Refresh, contentDescription = "Replay")
-            }
 
         }
     }

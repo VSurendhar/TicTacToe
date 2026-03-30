@@ -136,16 +136,6 @@ class RemoteGameViewModel(
                         }
                     }
 
-                    is RemoteGameStatus.GameDisConnected -> {
-                        Log.i(TAG, "Game disconnected")
-                        _actions.emit(RemoteGameAction.ShortToast("Game Disconnected"))
-                        _uiState.update {
-                            it.copy(
-                                status = it.status.plus(response.message),
-                            )
-                        }
-                    }
-
                     is RemoteGameStatus.GameStarted -> {
                         Log.i(TAG, "Game started")
                         _uiState.update {
@@ -228,6 +218,14 @@ class RemoteGameViewModel(
 
                     is RemoteGameStatus.InvalidMove -> {
                         _actions.emit(RemoteGameAction.ShortToast("Invalid move"))
+                    }
+
+                    is RemoteGameStatus.SomethingWentWrong -> {
+                        _uiState.update {
+                            it.copy(status = it.status.plus(response.message))
+                        }
+                        _actions.emit(RemoteGameAction.ShortToast("Something went wrong"))
+                        _actions.emit(RemoteGameAction.GoBack)
                     }
 
                     else -> {
@@ -335,15 +333,6 @@ class RemoteGameViewModel(
             )
             repo.sendMessage(json.encodeToString(move))
         }
-    }
-
-    fun onRefreshBoard() {
-        Log.d(TAG, "Refreshing board")
-        stopTimeoutTimer()
-        val move = ClientMessage(
-            clearGame = true
-        )
-        repo.sendMessage(json.encodeToString(move))
     }
 
     override fun onCleared() {

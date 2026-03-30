@@ -96,12 +96,10 @@ class RemoteRepository() {
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     Log.w(TAG, "WebSocket Closed: $code / $reason")
-                    trySend(GameServerResponse(message = RemoteGameStatus.GameDisConnected))
                 }
 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     Log.e(TAG, "WebSocket Error: ${t.message}", t)
-                    trySend(GameServerResponse(message = RemoteGameStatus.GameDisConnected))
                 }
             }
 

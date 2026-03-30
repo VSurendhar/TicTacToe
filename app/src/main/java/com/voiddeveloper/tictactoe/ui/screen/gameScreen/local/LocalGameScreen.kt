@@ -58,10 +58,7 @@ fun LocalGameScreen() {
                 showDifficulty = state.showDifficulty,
                 onDifficultyClick = {
                     showDifficultyDialog = true
-                },
-                onRefreshClick = {
-                    viewModel.onClearBoard()
-                },
+                }
             )
 
             PlayerIndicator(

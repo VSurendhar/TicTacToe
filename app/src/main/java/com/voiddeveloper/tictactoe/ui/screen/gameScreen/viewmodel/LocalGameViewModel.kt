@@ -97,16 +97,6 @@ class LocalGameViewModel(
                 controller.changeGamePlayDifficulty(difficulty)
             }
         }
-        onClearBoard()
-    }
-
-    fun onClearBoard() {
-        _uiState.update { it.copy(status = LocalGameStatus.InProgress) }
-
-        launchController {
-            controller.clearBoard()
-        }
-
     }
 
     private fun launchController(block: suspend () -> Unit) {

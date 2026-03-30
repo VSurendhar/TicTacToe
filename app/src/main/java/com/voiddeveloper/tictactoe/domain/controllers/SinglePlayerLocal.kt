@@ -49,7 +49,7 @@ class SinglePlayerLocal(
         return gameAI.difficulty
     }
 
-    override suspend fun clearBoard() {
+    private suspend fun clearBoard() {
         board.clearBoard()
         val randomIndex = if (Random.nextBoolean()) 0 else 1
         playerDetails.setStartingIndex(randomIndex)

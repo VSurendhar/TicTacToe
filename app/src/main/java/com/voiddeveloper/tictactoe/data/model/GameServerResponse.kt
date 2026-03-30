@@ -30,18 +30,6 @@ sealed interface RemoteGameStatus : GameStatus {
     }
 
     @Serializable
-    @SerialName("GAME_CONNECTED")
-    object GameDisConnected : RemoteGameStatus , Displayable{
-        override fun display(): String {
-            return "Game Disconnected"
-        }
-
-        override fun toString(): String {
-            return "Game Disconnected"
-        }
-    }
-
-    @Serializable
     @SerialName("PLAYER_DISCONNECTED")
     class PlayerDisconnected(val assignedChar: Char?) : RemoteGameStatus, Displayable {
         override fun display(): String {
@@ -146,6 +134,7 @@ sealed interface RemoteGameStatus : GameStatus {
     data class Win(
         val coin: Char,
         val board: List<List<Char?>>,
+        val isForced : Boolean = false
     ) : RemoteGameStatus, Displayable {
         override fun display(): String {
             return "$coin has won"
@@ -161,6 +150,18 @@ sealed interface RemoteGameStatus : GameStatus {
 
         override fun toString(): String {
             return "TIE"
+        }
+    }
+
+    @Serializable
+    @SerialName("SOMETHING_WENT_WRONG")
+    data class SomethingWentWrong(val message: String) : RemoteGameStatus, Displayable {
+        override fun display(): String {
+            return "Something Went Wrong"
+        }
+
+        override fun toString(): String {
+            return "Something Went Wrong"
         }
     }
 

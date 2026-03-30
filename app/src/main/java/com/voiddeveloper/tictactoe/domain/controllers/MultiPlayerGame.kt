@@ -9,7 +9,6 @@ import com.voiddeveloper.tictactoe.domain.model.PlayerDetails
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlin.random.Random
 
 class MultiPlayerGame(
     val playerDetails: PlayerDetails,
@@ -99,13 +98,6 @@ class MultiPlayerGame(
 
     fun getPrintableBoard(): String {
         return board.toString()
-    }
-
-    override suspend fun clearBoard() {
-        board.clearBoard()
-        val randomIndex = if (Random.nextBoolean()) 0 else 1
-        playerDetails.setStartingIndex(randomIndex)
-        _Local_gameStatus.emit(LocalGameStatus.InProgress)
     }
 
 }

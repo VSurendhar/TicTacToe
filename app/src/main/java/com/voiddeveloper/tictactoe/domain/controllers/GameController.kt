@@ -11,6 +11,4 @@ interface GameController {
     fun getGameBoard(): List<List<Cell>>
     fun getCurrentPlayer(): Player
     suspend fun addMove(coordinate: Coordinate)
-
-    suspend fun clearBoard()
 }
